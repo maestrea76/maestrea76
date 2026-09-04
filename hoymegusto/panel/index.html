@@ -44,7 +44,7 @@ th{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--sof
 <div class="w" id="app" hidden>
   <header>
     <h1>Panel ejecutivo · Hoy me <span>gusto</span></h1>
-    <p class="sub">API Instagram (GitHub Actions) · no uses la parrilla del perfil</p>
+    <p class="sub">Instagram (Actions) + TikTok Studio CSV · no uses la parrilla del perfil</p>
     <p class="nav"><a href="/hoymegusto/">Enlaces de compra</a> · <a href="https://github.com/maestrea76/hoymegusto-datos">Repo datos</a></p>
   </header>
   <div id="status" class="banner">Cargando…</div>
@@ -64,12 +64,23 @@ th{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--sof
     <h2>Publicaciones</h2>
     <div id="tabla"></div>
   </section>
-  <footer class="meta">Umbrales: visto ≥25% · saves ≥1% · shares ≥0,5% · clics ≥0,3%. Muestra &lt;50 views → n/s. PIN en sesión del navegador.</footer>
+  <section>
+    <h2 class="meta" style="letter-spacing:.12em;text-transform:uppercase;font-size:.7rem">TikTok (Studio CSV)</h2>
+    <div class="grid" id="ttkpis"></div>
+    <p class="meta" id="ttmeta" style="margin:.5rem 0 0"></p>
+  </section>
+  <section class="card">
+    <h2>TikTok · días con señal</h2>
+    <div id="tttabla"></div>
+  </section>
+  <footer class="meta">Umbrales IG: visto ≥25% · saves ≥1% · shares ≥0,5% · clics ≥0,3%. TT: Overview diario de cuenta (sin video_id hasta export Videos). PIN en sesión.</footer>
 </div>
 <script>
 const PANEL_PIN="100592";
 const SRC="https://raw.githubusercontent.com/maestrea76/hoymegusto-datos/main/datos/estadisticas.json";
 const FALLBACK="https://cdn.jsdelivr.net/gh/maestrea76/hoymegusto-datos@main/datos/estadisticas.json";
+const TT_SRC="https://raw.githubusercontent.com/maestrea76/hoymegusto-datos/main/datos/tiktok/tiktok_overview_latest.json";
+const TT_FALLBACK="https://cdn.jsdelivr.net/gh/maestrea76/hoymegusto-datos@main/datos/tiktok/tiktok_overview_latest.json";
 function num(v){return (v===0||v)?Number(v):null}
 function fmt(v){if(v===null||v===undefined||Number.isNaN(v))return "—";return Intl.NumberFormat("es-ES").format(v)}
 function pct(n,d){if(d===null||d<50||n===null)return null;return 100*n/d}
@@ -157,6 +168,42 @@ async function load(){
     <th>Pieza</th><th>Views</th><th>Alcance</th><th>♡</th><th>Coment.</th><th>Comp.</th><th>Guard.</th><th>Watch medio</th><th>Save%</th><th>Share%</th>
   </tr></thead><tbody>${rows}</tbody></table>`;
 }
+
+async function loadTikTok(){
+  const meta=document.getElementById("ttmeta");
+  const kpis=document.getElementById("ttkpis");
+  const tabla=document.getElementById("tttabla");
+  if(!kpis)return;
+  let data=null;
+  try{const r=await fetch(TT_SRC+"?t="+Date.now());if(!r.ok)throw 0;data=await r.json()}
+  catch(e){try{const r=await fetch(TT_FALLBACK+"?t="+Date.now());if(!r.ok)throw 0;data=await r.json()}catch(e2){
+    kpis.innerHTML=kpi("TikTok","sin CSV");
+    meta.textContent="Sube un CSV de Studio y se actualiza este bloque.";
+    tabla.innerHTML='<p class="meta">Sin Overview TT.</p>';
+    return;
+  }}
+  const t=data.totals||{};
+  const range=(data.date_range||[]).join(" → ");
+  kpis.innerHTML=[
+    kpi("Views TT",t.views),
+    kpi("Likes TT",t.likes),
+    kpi("Comentarios TT",t.comments),
+    kpi("Shares TT",t.shares),
+    kpi("Visitas perfil TT",t.profile_views),
+  ].join("");
+  meta.textContent=`Import ${data.imported_at||"—"} · ${range||"sin rango"} · ${data.source||"Studio"} · capa cuenta (no por vídeo)`;
+  const days=(data.nonzero_days||[]).slice().reverse();
+  if(!days.length){tabla.innerHTML='<p class="meta">Sin días con señal en el Overview.</p>';return;}
+  const rows=days.map(d=>`<tr>
+    <td>${d.fecha||"—"}</td>
+    <td>${fmt(d.views)}</td><td>${fmt(d.likes)}</td><td>${fmt(d.comments)}</td>
+    <td>${fmt(d.shares)}</td><td>${fmt(d.profile_views)}</td>
+  </tr>`).join("");
+  tabla.innerHTML=`<table><thead><tr>
+    <th>Fecha</th><th>Views</th><th>♡</th><th>Coment.</th><th>Shares</th><th>Perfil</th>
+  </tr></thead><tbody>${rows}</tbody></table>`;
+}
+
 function unlock(){
   const v=document.getElementById("pin").value.trim();
   if(v!==PANEL_PIN){document.getElementById("pinerr").style.display="block";return;}
@@ -164,6 +211,7 @@ function unlock(){
   document.getElementById("gatewrap").hidden=true;
   document.getElementById("app").hidden=false;
   load();
+  loadTikTok();
 }
 document.getElementById("pinbtn").onclick=unlock;
 document.getElementById("pin").addEventListener("keydown",e=>{if(e.key==="Enter")unlock();});
@@ -171,6 +219,7 @@ if(sessionStorage.getItem("hoymegusto_panel_ok")==="1"){
   document.getElementById("gatewrap").hidden=true;
   document.getElementById("app").hidden=false;
   load();
+  loadTikTok();
 }
 </script>
 </body>
