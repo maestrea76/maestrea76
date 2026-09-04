@@ -1,0 +1,178 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Panel ejecutivo · Hoy me gusto</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--bg:#FAF7F8;--card:#fff;--ink:#1B1A1F;--soft:#5A555F;--line:#E6DFE2;--ac:#8E2C4E;--ok:#3E4A31;--warn:#8a6d1a;--bad:#8b1e2d;--okbg:#F1F3EC;--warnbg:#fbf3d5;--badbg:#f8e6ea}
+@media(prefers-color-scheme:dark){:root{--bg:#151318;--card:#1E1B21;--ink:#F4F0F2;--soft:#A9A1AB;--line:#332E38;--ac:#E4739A;--ok:#8CA06F;--warn:#e0c35a;--bad:#e4739a;--okbg:#20241C;--warnbg:#2a2410;--badbg:#2a151c}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
+.w{max-width:56rem;margin:0 auto;padding:2rem 1.25rem 3.5rem;display:flex;flex-direction:column;gap:1.1rem}
+h1{font-size:clamp(1.5rem,5vw,2.1rem);letter-spacing:-.03em;margin:0}h1 span{color:var(--ac)}
+h2{font-size:1rem;margin:0 0 .5rem}.sub,.meta{color:var(--soft);font-size:.9rem}a{color:var(--ac)}
+.banner{border-radius:12px;padding:1rem 1.1rem;border:1px solid var(--line);background:var(--badbg);color:var(--bad)}
+.banner.ok{background:var(--okbg);color:var(--ok)}.banner.warn{background:var(--warnbg);color:var(--warn)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(9.2rem,1fr));gap:.7rem}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.85rem 1rem}
+.kpi b{display:block;font-size:1.3rem;letter-spacing:-.02em}.kpi span{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--soft)}
+.kpi.hot{border-color:var(--ac)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1rem;overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:.86rem}th,td{text-align:left;padding:.5rem .35rem;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--soft)}
+.tag{display:inline-block;padding:.1rem .4rem;border-radius:999px;font-size:.72rem}
+.tag.ok{background:var(--okbg);color:var(--ok)}.tag.warn{background:var(--warnbg);color:var(--warn)}.tag.bad{background:var(--badbg);color:var(--bad)}.tag.ns{background:var(--line);color:var(--soft)}
+.nav{display:flex;gap:1rem;flex-wrap:wrap;font-size:.9rem}
+#gatewrap{min-height:70vh;display:flex;align-items:center;justify-content:center;padding:1.5rem}
+#gatebox{width:min(22rem,100%);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1.25rem;display:flex;flex-direction:column;gap:.75rem}
+#gatebox input{font:inherit;padding:.7rem .8rem;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+#gatebox button{font:inherit;font-weight:700;padding:.75rem;border:0;border-radius:10px;background:var(--ac);color:#fff;cursor:pointer}
+.err{color:var(--bad);font-size:.85rem;display:none}
+.bullets{margin:.2rem 0 0;padding-left:1.1rem}.bullets li{margin:.25rem 0}
+</style>
+</head>
+<body>
+<div id="gatewrap">
+  <div id="gatebox">
+    <h1 style="font-size:1.35rem">Panel · Hoy me <span>gusto</span></h1>
+    <p class="meta" style="margin:0">PIN para ver estadísticas</p>
+    <input id="pin" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN">
+    <button id="pinbtn" type="button">Entrar</button>
+    <p class="err" id="pinerr">PIN incorrecto</p>
+  </div>
+</div>
+<div class="w" id="app" hidden>
+  <header>
+    <h1>Panel ejecutivo · Hoy me <span>gusto</span></h1>
+    <p class="sub">API Instagram (GitHub Actions) · no uses la parrilla del perfil</p>
+    <p class="nav"><a href="/hoymegusto/">Enlaces de compra</a> · <a href="https://github.com/maestrea76/hoymegusto-datos">Repo datos</a></p>
+  </header>
+  <div id="status" class="banner">Cargando…</div>
+  <section>
+    <h2 class="meta" style="letter-spacing:.12em;text-transform:uppercase;font-size:.7rem">Cuenta</h2>
+    <div class="grid" id="kpis"></div>
+  </section>
+  <section>
+    <h2 class="meta" style="letter-spacing:.12em;text-transform:uppercase;font-size:.7rem">Insights 30 días / disponibles</h2>
+    <div class="grid" id="ins"></div>
+  </section>
+  <section class="card">
+    <h2>Lectura ejecutiva</h2>
+    <ul class="bullets" id="exec"></ul>
+  </section>
+  <section class="card">
+    <h2>Publicaciones</h2>
+    <div id="tabla"></div>
+  </section>
+  <footer class="meta">Umbrales: visto ≥25% · saves ≥1% · shares ≥0,5% · clics ≥0,3%. Muestra &lt;50 views → n/s. PIN en sesión del navegador.</footer>
+</div>
+<script>
+const PANEL_PIN="100592";
+const SRC="https://raw.githubusercontent.com/maestrea76/hoymegusto-datos/main/datos/estadisticas.json";
+const FALLBACK="https://cdn.jsdelivr.net/gh/maestrea76/hoymegusto-datos@main/datos/estadisticas.json";
+function num(v){return (v===0||v)?Number(v):null}
+function fmt(v){if(v===null||v===undefined||Number.isNaN(v))return "—";return Intl.NumberFormat("es-ES").format(v)}
+function pct(n,d){if(d===null||d<50||n===null)return null;return 100*n/d}
+function tagRate(p,good,mid){if(p===null)return '<span class="tag ns">n/s</span>';const cls=p>=good?"ok":p>=mid?"warn":"bad";return `<span class="tag ${cls}">${p.toFixed(1).replace(".",",")}%</span>`}
+function pick(obj,keys){if(!obj)return null;for(const k of keys){if(obj[k]!==undefined&&obj[k]!==null)return obj[k]}return null}
+function kpi(label,value,hot){return `<div class="kpi${hot?" hot":""}"><span>${label}</span><b>${fmt(value)}</b></div>`}
+function titleFromCaption(c){if(!c)return "—";const line=c.split("\n").map(s=>s.trim()).find(Boolean)||c;return line.slice(0,48)+(line.length>48?"…":"")}
+function flatInsights(block){const out={};if(!block)return out;const rows=Array.isArray(block)?block:(block.data||[]);for(const row of rows){const name=row.name;if(!name)continue;if(row.total_value&&row.total_value.value!==undefined)out[name]=row.total_value.value;else if(row.values&&row.values[0])out[name]=row.values[0].value}return out}
+async function load(){
+  const statusEl=document.getElementById("status");
+  let data,src=SRC;
+  try{const r=await fetch(SRC+"?t="+Date.now());if(!r.ok)throw new Error(r.status);data=await r.json()}
+  catch(e1){try{src=FALLBACK;const r=await fetch(FALLBACK+"?t="+Date.now());if(!r.ok)throw new Error(r.status);data=await r.json()}catch(e2){statusEl.className="banner";statusEl.textContent="No pude cargar el JSON.";return}}
+  const gen=data.generado||"sin fecha";
+  const c=data.cuenta||{};
+  const cuentaErr=!!c.error;
+  const insErr=data.cuenta_insights_errores||{};
+  const hasInsErr=Object.keys(insErr).length>0;
+  if(cuentaErr){statusEl.className="banner";statusEl.textContent=`Cuenta con error · ${gen}`;}
+  else if(hasInsErr){statusEl.className="banner warn";statusEl.textContent=`Cuenta OK, insights parciales · ${gen} · ${src}`;}
+  else{statusEl.className="banner ok";statusEl.textContent=`OK · ${gen} · ${src}`;}
+  const followers=num(pick(c,["followers_count","seguidores","followers"]));
+  const mediaCount=num(pick(c,["media_count"]));
+  const follows=num(pick(c,["follows_count"]));
+  document.getElementById("kpis").innerHTML=[
+    kpi("Seguidores",followers),
+    kpi("Reels / media",mediaCount),
+    kpi("Siguiendo",follows),
+    kpi("Publicaciones en JSON",Array.isArray(data.publicaciones)?data.publicaciones.length:0),
+  ].join("");
+  const ti=flatInsights(data.cuenta_insights&&data.cuenta_insights.totales_30d)||flatInsights(data.cuenta_insights);
+  const clicks=num(ti.website_clicks);
+  const pviews=num(ti.profile_views);
+  const views=num(ti.views);
+  const reach=num(ti.reach);
+  const engaged=num(ti.accounts_engaged);
+  const interacts=num(ti.total_interactions);
+  document.getElementById("ins").innerHTML=[
+    kpi("Clics enlace",clicks,clicks!==null&&clicks>0),
+    kpi("Visitas perfil",pviews),
+    kpi("Views cuenta",views),
+    kpi("Alcance cuenta",reach),
+    kpi("Cuentas que interactúan",engaged),
+    kpi("Interacciones",interacts),
+  ].join("");
+  const posts=Array.isArray(data.publicaciones)?data.publicaciones:[];
+  const exec=[];
+  if(cuentaErr)exec.push("La cuenta API falló: no tomes decisiones con este JSON.");
+  if(hasInsErr)exec.push("Hay errores de insights: no interpretes clics/views de cuenta hasta que el token tenga scopes completos.");
+  if(clicks===0)exec.push("website_clicks = 0: la bio aún no convierte (o no hay datos). Prioridad: alcance + CTA claro.");
+  if(clicks===null&&!hasInsErr)exec.push("Sin website_clicks en el JSON.");
+  if(followers!==null&&followers<100)exec.push(`Audiencia temprana (${fmt(followers)} seguidores): Associates aparcado.`);
+  const withViews=posts.filter(p=>num(pick(p.insights||{},["views","plays"]))!==null);
+  if(withViews.length){
+    const best=withViews.slice().sort((a,b)=>(num(pick(b.insights,["views"]))||0)-(num(pick(a.insights,["views"]))||0))[0];
+    const bv=num(pick(best.insights,["views"]));
+    exec.push(`Mejor reel por views API: ${titleFromCaption(best.caption)} (${fmt(bv)}).`);
+  } else if(posts.length){
+    exec.push("Hay posts pero sin views en insights: usa likes/comentarios solo como señal débil.");
+  }
+  if(!exec.length)exec.push("Sin alertas. Revisa la tabla de publicaciones.");
+  document.getElementById("exec").innerHTML=exec.map(x=>`<li>${x}</li>`).join("");
+  if(!posts.length){document.getElementById("tabla").innerHTML='<p class="meta">Sin publicaciones.</p>';return;}
+  const rows=posts.map(p=>{
+    const ins=p.insights||{};
+    const v=num(pick(ins,["views","plays"]));
+    const r=num(pick(ins,["reach"]));
+    const likes=num(pick(ins,["likes"]))??num(p.like_count);
+    const comments=num(pick(ins,["comments"]))??num(p.comments_count);
+    const shares=num(pick(ins,["shares"]));
+    const saved=num(pick(ins,["saved","saves"]));
+    const avg=num(pick(ins,["segundos_medios"]))??(num(pick(ins,["ig_reels_avg_watch_time"]))!==null?num(pick(ins,["ig_reels_avg_watch_time"]))/1000:null);
+    const saveRate=pct(saved,v); const shareRate=pct(shares,v);
+    const when=(p.timestamp||"").slice(0,10);
+    const name=titleFromCaption(p.caption);
+    const link=p.permalink?`<a href="${p.permalink}" target="_blank" rel="noopener">abrir</a>`:"—";
+    const insBad=p.insights_error||p.insights_error_reels;
+    return `<tr>
+      <td>${name}<div class="meta">${when} · ${link}${insBad?' · <span class="tag bad">insights err</span>':''}</div></td>
+      <td>${fmt(v)}</td><td>${fmt(r)}</td><td>${fmt(likes)}</td><td>${fmt(comments)}</td><td>${fmt(shares)}</td><td>${fmt(saved)}</td>
+      <td>${avg!==null?avg.toFixed(1).replace(".",",")+"s":"—"}</td>
+      <td>${tagRate(saveRate,1,0.4)}</td><td>${tagRate(shareRate,0.5,0.2)}</td>
+    </tr>`}).join("");
+  document.getElementById("tabla").innerHTML=`<table><thead><tr>
+    <th>Pieza</th><th>Views</th><th>Alcance</th><th>♡</th><th>Coment.</th><th>Comp.</th><th>Guard.</th><th>Watch medio</th><th>Save%</th><th>Share%</th>
+  </tr></thead><tbody>${rows}</tbody></table>`;
+}
+function unlock(){
+  const v=document.getElementById("pin").value.trim();
+  if(v!==PANEL_PIN){document.getElementById("pinerr").style.display="block";return;}
+  sessionStorage.setItem("hoymegusto_panel_ok","1");
+  document.getElementById("gatewrap").hidden=true;
+  document.getElementById("app").hidden=false;
+  load();
+}
+document.getElementById("pinbtn").onclick=unlock;
+document.getElementById("pin").addEventListener("keydown",e=>{if(e.key==="Enter")unlock();});
+if(sessionStorage.getItem("hoymegusto_panel_ok")==="1"){
+  document.getElementById("gatewrap").hidden=true;
+  document.getElementById("app").hidden=false;
+  load();
+}
+</script>
+</body>
+</html>
