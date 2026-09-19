@@ -134,7 +134,8 @@ footer{color:var(--mute);font-size:.78rem}
     <article class="card">
       <h2>Cadencia 7 días</h2>
       <div class="cad" id="cadence"></div>
-      <p class="meta" id="cola" style="margin:.7rem 0 0"></p>
+      <p class="meta" id="cola" style="margin:.7rem 0 .45rem"></p>
+      <div class="list" id="colalist"></div>
     </article>
   </section>
   <section class="grid2">
@@ -180,17 +181,30 @@ const PANEL_PIN="100592";
 const RAW="https://raw.githubusercontent.com/maestrea76/hoymegusto-datos/main/";
 const CDN="https://cdn.jsdelivr.net/gh/maestrea76/hoymegusto-datos@main/";
 const IG_PATH="datos/estadisticas.json";
+const SERIE_PATH="datos/serie_cuenta.json";
 const TT_JSON_PATHS=["datos/tiktok.json","datos/tiktok/tiktok.json","datos/tiktok/tiktok_content_latest.json"];
 const TT_OVERVIEW_PATHS=["datos/tiktok/tiktok_overview_latest.json"];
-const COLA_PATHS=["datos/cola.json","datos/canonicos.json"];
+const COLA_PATHS=["datos/cola.json"];
 const TT_PROFILE_META=0.01;
 const MIN_N=50;
 let igFilter="all";
-let cache={ig:null,tt:null,ov:null,cola:null,src:{}};
+let cache={ig:null,tt:null,ov:null,cola:null,serie:null,src:{}};
 
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function num(v){return (v===0||v)?Number(v):null}
 function fmt(v){if(v===null||v===undefined||Number.isNaN(v))return "—";return Intl.NumberFormat("es-ES").format(v)}
+function fmtDelta(n){if(n===null||n===undefined||Number.isNaN(n))return "—";return (n>0?"+":"")+fmt(n)}
+function serieRows(serie){return (serie&&Array.isArray(serie.dias)?serie.dias:[]).filter(d=>d&&d.fecha)}
+function serieDelta(dias,field,days){
+  const rows=dias.filter(d=>num(d[field])!==null);
+  if(!rows.length)return {value:null,note:"null en serie"};
+  const last=rows[rows.length-1];
+  const lastT=Date.parse(last.fecha);
+  const cutoff=lastT-days*86400000;
+  const prev=[...rows].reverse().find(d=>Date.parse(d.fecha)<=cutoff+12*3600000);
+  if(!prev||prev.fecha===last.fecha)return {value:null,note:`serie <${days}d`};
+  return {value:num(last[field])-num(prev[field]),from:prev.fecha,to:last.fecha};
+}
 function pct(n,d){if(d===null||d===0||n===null||Number.isNaN(n)||Number.isNaN(d))return null;return n/d}
 function pctLabel(p,digits){if(p===null)return "—";return (100*p).toFixed(digits??1).replace(".",",")+"%"}
 function pick(obj,keys){if(!obj)return null;for(const k of keys){if(obj[k]!==undefined&&obj[k]!==null)return obj[k]}return null}
@@ -238,7 +252,8 @@ function parsePosts(ig){
       title:titleFromCaption(p.caption),permalink:p.permalink,
       views,reach,likes,comments,shares,saved,avg,
       saveRate:pct(saved,views),shareRate:pct(shares,views),
-      sample:views!==null&&views>=MIN_N,insBad:!!(p.insights_error||p.insights_error_reels)
+      sample:views!==null&&views>=MIN_N,insBad:!!(p.insights_error||p.insights_error_reels),
+      primer:p.primer_comentario_ok
     };
   });
 }
@@ -292,6 +307,10 @@ function diagnose(ig,posts,tt,ov,cola){
     const med=tt.summary&&tt.summary.median_nucleo_organic;
     items.push({sev:"warn",t:"No leas el pico de TikTok como orgánico",d:`${promos.length} piezas promo y ${nucleo.length} de núcleo. Mediana orgánica ${fmt(med)} views. Las decisiones de formato salen del núcleo, no de la promo.`});
   }
+  const sinPrim=posts.filter(p=>p.primer===false).length;
+  if(sinPrim){
+    items.push({sev:"warn",t:"Falta el primer comentario",d:`${sinPrim} de ${posts.length} pubs con primer_comentario_ok = false. Es regla de publish, no de métrica.`});
+  }
   if(!items.length)items.push({sev:"ok",t:"Sin alertas duras",d:"Revisa top piezas y cadencia. Sigue sin inventar números que no estén en el JSON."});
   const worst=items[0];
   return {items,pills,headline:worst.t,lead:worst.d,sev:worst.sev};
@@ -311,9 +330,15 @@ function renderHero(dx,posts,tt,ov){
     <div class="pills">${dx.pills.map(([n,c])=>`<span class="pill ${c}">${esc(n)}</span>`).join("")}</div>
     <div class="actions">${actions.map(a=>`<div class="action"><b>${esc(a.k)}</b>${esc(a.t)}</div>`).join("")}</div>`;
 }
-function renderKpis(ig,posts,tt,ov){
+function renderKpis(ig,posts,tt,ov,serie){
   const fol=ig.followers;
-  const delta=ig.followsNet;
+  const dias=serieRows(serie);
+  const d7=serieDelta(dias,"followers_count",7);
+  const d30=serieDelta(dias,"followers_count",30);
+  const folNote=[
+    d7.value!==null?`7d ${fmtDelta(d7.value)}`:d7.note,
+    d30.value!==null?`30d ${fmtDelta(d30.value)}`:d30.note
+  ].join(" · ");
   const clicks=ig.clicks;
   const pviews=ig.pviews;
   const views=ig.viewsSum;
@@ -323,14 +348,16 @@ function renderKpis(ig,posts,tt,ov){
   const ttViews=ov&&num(ov.totals&&ov.totals.views);
   const ttProf=ov&&num(ov.totals&&ov.totals.profile_views);
   const ttRatio=pct(ttProf,ttViews);
+  const clicksDay=dias.some(d=>num(d.website_clicks)!==null);
+  const sinPrim=posts.filter(p=>p.primer===false).length;
   document.getElementById("kpis").innerHTML=[
-    kpiHTML("Seguidores IG",fmt(fol),delta!==null?`Net 30d ${fmt(delta)}`:"Sin serie histórica en el JSON"),
+    kpiHTML("Seguidores IG",fmt(fol),folNote),
     kpiHTML("Seguidores TT",fmt(ttFol),"Campo ausente en Overview/CSV"),
-    kpiHTML("Clics enlace",fmt(clicks),clicks===0?"Crítico · bio no convierte":"30 días",clicks===0),
+    kpiHTML("Clics enlace",fmt(clicks),clicksDay?"Serie diaria disponible":(clicks===0?"Crítico · bio no convierte":"total 30d, clicks/día null"),clicks===0),
     kpiHTML("Visitas perfil IG",fmt(pviews),`Views→perfil ${pctLabel(ratioIG,1)}`),
     kpiHTML("Views IG (piezas)",fmt(views),`Alcance ${fmt(reach)}`),
     kpiHTML("Views TT Overview",fmt(ttViews),`Views→perfil ${pctLabel(ttRatio,2)} · meta ≥1%`),
-    kpiHTML("Piezas IG",fmt(posts.length),`${posts.filter(p=>(p.views||0)<50).length} bajo 50 views`),
+    kpiHTML("Piezas IG",fmt(posts.length),`${sinPrim} sin 1er comentario`),
     kpiHTML("Vídeos TT",fmt((tt&&tt.videos||[]).length),tt&&tt.summary?`Núcleo med. ${fmt(tt.summary.median_nucleo_organic)}`:"CSV Analista"),
   ].join("");
 }
@@ -352,28 +379,33 @@ function renderFunnel(ig,posts,ov){
   document.getElementById("funnel").innerHTML=steps.map(s=>`<div class="frow ${s.cls}"><b>${esc(s.n)}</b><div class="fbar"><i style="width:${Math.min(100,s.w)}%"></i></div><span class="num">${fmt(s.v)}</span></div>`).join("");
   document.getElementById("funnelnote").textContent="El agujero de dinero está en perfil → clic. El de crecimiento, en views → perfil (TT) y en shares/saves (IG).";
 }
-function renderCadence(posts,tt,cola,ref){
-  const igWeek=posts.filter(p=>inDays(p.ts||p.when,ref,7));
+function renderCadence(posts,tt,cola,igRef,ttRef){
+  const igWeek=posts.filter(p=>inDays(p.ts||p.when,igRef,7));
   const reels=igWeek.filter(p=>String(p.kind).toUpperCase().includes("REEL")||p.kind==="VIDEO");
   const cars=igWeek.filter(p=>String(p.kind).toUpperCase().includes("CAROUSEL")||p.kind==="CAROUSEL_ALBUM");
-  const ttWeek=(tt&&tt.videos||[]).filter(v=>inDays(v.fecha,ref,7));
+  const ttWeek=(tt&&tt.videos||[]).filter(v=>inDays(v.fecha,ttRef,7));
   const ttTarget=14,igCarTarget=2,igReelTarget=1;
   const ttCls=ttWeek.length>=10?"ok":ttWeek.length>=6?"warn":"bad";
   const carCls=cars.length>=1&&cars.length<=3?"ok":cars.length===0?"bad":"warn";
   const reelCls=reels.length<=3?"ok":"warn";
   const bar=(n,t)=>Math.min(100,100*n/Math.max(t,1));
+  const ttStamp=(tt&&(tt.content_import||(tt.fuentes&&tt.fuentes.content)))||"—";
   document.getElementById("cadence").innerHTML=`
     <div class="cad-row"><b>TikTok ${ttWeek.length}/${ttTarget} · objetivo ~2/día</b><div class="track ${ttCls}"><i style="width:${bar(ttWeek.length,ttTarget)}%"></i></div></div>
     <div class="cad-row"><b>IG carruseles ${cars.length} · objetivo 1–2 / semana</b><div class="track ${carCls}"><i style="width:${bar(cars.length,igCarTarget)}%"></i></div></div>
     <div class="cad-row"><b>IG Reels ${reels.length} · 1 largo opcional</b><div class="track ${reelCls}"><i style="width:${bar(reels.length,Math.max(igReelTarget,reels.length||1))}%"></i></div></div>`;
-  if(cola&&(cola.cola||cola.items||cola.canonicos)){
-    const rows=cola.cola||cola.items||cola.canonicos||[];
-    const pend=rows.filter(x=>["listo","producido","pendiente","canonico","canónico"].includes(String(x.estado||x.status||"").toLowerCase()));
-    const pub=rows.filter(x=>["usado","publicado","published"].includes(String(x.estado||x.status||"").toLowerCase()));
-    document.getElementById("cola").textContent=`Cola JSON: ${pend.length} pendientes · ${pub.length} publicados.`;
+  if(cola&&cola.conteos){
+    const pend=num(cola.conteos.pendientes);
+    const pub=num(cola.conteos.publicados);
+    document.getElementById("cola").textContent=`Cola ${cola.generado?cola.generado.slice(0,10):""}: ${fmt(pend)} pendientes · ${fmt(pub)} publicados. Sin ASIN.`;
+    const next=(cola.siguientes||[]).filter(x=>["listo","producido"].includes(String(x.estado||"")));
+    document.getElementById("colalist").innerHTML=next.slice(0,8).map(x=>`<div class="row"><div class="rank">${esc(x.canal||"—")}</div><div><h3>${esc(x.nombre||"—")}</h3><p class="meta">${esc(x.fecha||"")}</p></div><div class="metrics"><span class="chip">${esc(x.estado||"")}</span></div></div>`).join("")||"";
   }else{
-    document.getElementById("cola").textContent="Cola canónicos: no hay datos/cola.json ni datos/canonicos.json en hoymegusto-datos. El panel no inventa el estado de la cola.";
+    document.getElementById("cola").textContent="Cola canónicos: datos/cola.json vacío o ausente. El panel no inventa.";
+    document.getElementById("colalist").innerHTML="";
   }
+  const metaCad=document.getElementById("cola");
+  metaCad.textContent+=(ttRef?` · Cadencia TT vs generado TT (${new Date(ttRef).toISOString().slice(0,10)}, stamp ${ttStamp}).`:"");
 }
 function renderTop(posts,tt){
   const ig=posts.slice().sort((a,b)=>(b.views||0)-(a.views||0)).slice(0,3);
@@ -405,10 +437,11 @@ function renderIGTable(posts){
   else rows.sort((a,b)=>String(b.when).localeCompare(String(a.when)));
   if(!rows.length){document.getElementById("igtabla").innerHTML='<p class="meta">Sin publicaciones en este filtro.</p>';return;}
   document.getElementById("igtabla").innerHTML=`<table><thead><tr>
-    <th>Pieza</th><th>Tipo</th><th>Views</th><th>Alcance</th><th>Watch</th><th>Save%</th><th>Share%</th><th>Cuello</th>
+    <th>Pieza</th><th>Tipo</th><th>Views</th><th>Alcance</th><th>Watch</th><th>Save%</th><th>Share%</th><th>1er com.</th><th>Cuello</th>
   </tr></thead><tbody>${rows.map(p=>{
     const bn=bottleneck(p);
     const link=p.permalink?`<a href="${esc(p.permalink)}" target="_blank" rel="noopener">abrir</a>`:"—";
+    const prim=p.primer===true?'<span class="chip ok">ok</span>':p.primer===false?'<span class="chip bad">no</span>':'<span class="chip ns">n/s</span>';
     return `<tr>
       <td>${esc(p.title)}<div class="meta">${esc(p.when)} · ${link}${p.insBad?' · <span class="chip bad">insights err</span>':""}</div></td>
       <td>${esc(p.kind)}</td>
@@ -416,6 +449,7 @@ function renderIGTable(posts){
       <td class="num">${p.avg!==null?String(p.avg).replace(".",",")+"s":"—"}</td>
       <td>${p.sample?tag(p.saveRate,0.01,0.004):'<span class="chip ns">n/s</span>'}</td>
       <td>${p.sample?tag(p.shareRate,0.005,0.002):'<span class="chip ns">n/s</span>'}</td>
+      <td>${prim}</td>
       <td><span class="chip ${bn.cls}">${esc(bn.label)}</span></td>
     </tr>`;
   }).join("")}</tbody></table>`;
@@ -424,7 +458,9 @@ function renderTT(tt,ov){
   const videos=(tt&&(tt.videos||tt.data))||[];
   const src=cache.src.tt||"sin tiktok.json";
   const sum=tt&&tt.summary;
-  document.getElementById("ttmeta").textContent=`Fuente ${src}${sum?` · núcleo med. ${fmt(sum.median_nucleo_organic)} · ${fmt((sum.promos||[]).length)} promo · ${fmt((sum.outliers||[]).length)} outlier`:""}. Promo no se lee como viral orgánico.`;
+  const stamp=tt&&(tt.content_import||(tt.fuentes&&tt.fuentes.content));
+  const gen=tt&&tt.generado;
+  document.getElementById("ttmeta").textContent=`Fuente ${src}${gen?` · generado ${gen}`:""}${stamp?` · Content ${stamp}`:""}${sum?` · núcleo med. ${fmt(sum.median_nucleo_organic)} · ${fmt((sum.promos||[]).length)} promo · ${fmt((sum.outliers||[]).length)} outlier`:""}. Promo no se lee como viral orgánico.`;
   if(!videos.length){document.getElementById("tttabla").innerHTML='<p class="meta">Sin vídeos TT en el JSON del Analista.</p>';return;}
   const ordered=videos.slice().sort((a,b)=>(b.views||0)-(a.views||0));
   document.getElementById("tttabla").innerHTML=`<table><thead><tr>
@@ -444,10 +480,11 @@ function renderTT(tt,ov){
 async function load(){
   const status=document.getElementById("status");
   const igPack=await firstJSON([IG_PATH]);
+  const seriePack=await firstJSON([SERIE_PATH]);
   const ttPack=await firstJSON(TT_JSON_PATHS);
   const ovPack=await firstJSON(TT_OVERVIEW_PATHS);
   const colaPack=await firstJSON(COLA_PATHS);
-  cache={ig:igPack.data,tt:ttPack.data,ov:ovPack.data,cola:colaPack.data,src:{ig:igPack.path,tt:ttPack.path,ov:ovPack.path,cola:colaPack.path}};
+  cache={ig:igPack.data,tt:ttPack.data,ov:ovPack.data,cola:colaPack.data,serie:seriePack.data,src:{ig:igPack.path,tt:ttPack.path,ov:ovPack.path,cola:colaPack.path,serie:seriePack.path}};
   if(!igPack.data){status.className="banner bad";status.textContent="No pude cargar datos/estadisticas.json.";return;}
   const ig=igPack.data;
   const c=ig.cuenta||{};
@@ -455,32 +492,36 @@ async function load(){
   const posts=parsePosts(ig);
   const viewsDaily=seriesNamed(ig.cuenta_insights&&ig.cuenta_insights.serie_diaria,"views").map(v=>num(v.value)||0);
   const reachDaily=seriesNamed(ig.cuenta_insights&&ig.cuenta_insights.serie_diaria,"reach").map(v=>num(v.value)||0);
+  const serieReach=serieRows(seriePack.data).map(d=>num(d.reach)).filter(v=>v!==null);
   const igModel={
     followers:num(pick(c,["followers_count","seguidores","followers"])),
-    followsNet:num(ti.follows_and_unfollows),
     clicks:num(ti.website_clicks),
     pviews:num(ti.profile_views),
     viewsSum:posts.reduce((a,p)=>a+(p.views||0),0),
     reachSum:posts.reduce((a,p)=>a+(p.reach||0),0),
     reachDaily,viewsDaily,
     gen:ig.generado||"sin fecha",
-    err:!!c.error,insErr:ig.cuenta_insights_errores||{}
+    err:!!c.error,insErr:ig.cuenta_insights_errores||{},
+    metricErr:ig.metric_errores||{}
   };
+  const viewsDayErr=igModel.metricErr.views_day;
   const hasInsErr=Object.keys(igModel.insErr).length>0;
   if(igModel.err){status.className="banner bad";status.textContent=`Cuenta API con error · ${igModel.gen}`;}
-  else if(hasInsErr){status.className="banner warn";status.textContent=`Cuenta OK, insights parciales · ${igModel.gen}`;}
-  else{status.className="banner ok";status.textContent=`OK · IG ${igModel.gen} · ${igPack.path}${ttPack.path?" · TT "+ttPack.path:""}${ovPack.path?" · Overview "+ovPack.path:""}`;}
-  document.getElementById("updated").textContent=`JSON de lectura. IG ${igModel.gen}. TT ${ttPack.path||"no cargó"} · Overview ${ovPack.path||"no cargó"}.`;
+  else if(hasInsErr||viewsDayErr){status.className="banner warn";status.textContent=`OK parcial · IG ${igModel.gen}${viewsDayErr?" · views/day no viene de Meta":""}`;}
+  else{status.className="banner ok";status.textContent=`OK · IG ${igModel.gen} · ${igPack.path}${ttPack.path?" · TT "+ttPack.path:""}${seriePack.path?" · serie "+seriePack.path:""}`;}
+  document.getElementById("updated").textContent=`JSON de lectura. IG ${igModel.gen}. TT ${ttPack.path||"no cargó"} (${(ttPack.data&&ttPack.data.generado)||"sin generado"}). Serie ${seriePack.path||"no"}. Cola ${colaPack.path||"no"}.`;
   const tt=ttPack.data;
   const ov=ovPack.data;
   const dx=diagnose(igModel,posts,tt,ov,colaPack.data);
-  const ref=Date.parse(ig.generado)||Date.now();
+  const igRef=Date.parse(ig.generado)||Date.now();
+  const ttRef=Date.parse(tt&&tt.generado)||igRef;
   renderHero(dx,posts,tt,ov);
-  renderKpis(igModel,posts,tt,ov);
+  renderKpis(igModel,posts,tt,ov,seriePack.data);
   renderFunnel(igModel,posts,ov);
-  renderCadence(posts,tt,colaPack.data,ref);
-  document.getElementById("igchart").innerHTML=spark(reachDaily.length?reachDaily:viewsDaily);
-  document.getElementById("igchartmeta").textContent=reachDaily.length?"Serie reach/day de la API.":"Sin serie reach; se muestra views/day si existe.";
+  renderCadence(posts,tt,colaPack.data,igRef,ttRef);
+  const reachSpark=serieReach.length>=2?serieReach:(reachDaily.length?reachDaily:viewsDaily);
+  document.getElementById("igchart").innerHTML=spark(reachSpark);
+  document.getElementById("igchartmeta").textContent=viewsDayErr?`metric_errores.views_day: ${viewsDayErr.message||"views/day ausente"}. Se pinta reach.`:(seriePack.path?"Reach desde serie_cuenta.json.":"Serie reach/day de la API.");
   const ovRows=(ov&&(ov.rows||ov.nonzero_days))||[];
   document.getElementById("ttchart").innerHTML=spark(ovRows.map(d=>num(d.views)||0));
   document.getElementById("ttchartmeta").textContent=ov?`${ov.source||"Overview"} · ${(ov.date_range||[]).join(" → ")} · import ${ov.imported_at||"—"}`:"Sin Overview.";
