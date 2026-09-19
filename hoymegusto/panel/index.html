@@ -4,206 +4,488 @@
 <meta charset="utf-8">
 <title>Panel ejecutivo · Hoy me gusto</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
 <style>
-:root{--bg:#FAF7F8;--card:#fff;--ink:#1B1A1F;--soft:#5A555F;--line:#E6DFE2;--ac:#8E2C4E;--ok:#3E4A31;--warn:#8a6d1a;--bad:#8b1e2d;--okbg:#F1F3EC;--warnbg:#fbf3d5;--badbg:#f8e6ea}
-@media(prefers-color-scheme:dark){:root{--bg:#151318;--card:#1E1B21;--ink:#F4F0F2;--soft:#A9A1AB;--line:#332E38;--ac:#E4739A;--ok:#8CA06F;--warn:#e0c35a;--bad:#e4739a;--okbg:#20241C;--warnbg:#2a2410;--badbg:#2a151c}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif}
-.w{max-width:56rem;margin:0 auto;padding:2rem 1.25rem 3.5rem;display:flex;flex-direction:column;gap:1.1rem}
-h1{font-size:clamp(1.5rem,5vw,2.1rem);letter-spacing:-.03em;margin:0}h1 span{color:var(--ac)}
-h2{font-size:1rem;margin:0 0 .5rem}.sub,.meta{color:var(--soft);font-size:.9rem}a{color:var(--ac)}
-.banner{border-radius:12px;padding:1rem 1.1rem;border:1px solid var(--line);background:var(--badbg);color:var(--bad)}
-.banner.ok{background:var(--okbg);color:var(--ok)}.banner.warn{background:var(--warnbg);color:var(--warn)}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(9.2rem,1fr));gap:.7rem}
-.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.85rem 1rem}
-.kpi b{display:block;font-size:1.3rem;letter-spacing:-.02em}.kpi span{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--soft)}
-.kpi.hot{border-color:var(--ac)}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1rem;overflow:auto}
-table{width:100%;border-collapse:collapse;font-size:.86rem}th,td{text-align:left;padding:.5rem .35rem;border-bottom:1px solid var(--line);white-space:nowrap}
-th{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--soft)}
-.tag{display:inline-block;padding:.1rem .4rem;border-radius:999px;font-size:.72rem}
-.tag.ok{background:var(--okbg);color:var(--ok)}.tag.warn{background:var(--warnbg);color:var(--warn)}.tag.bad{background:var(--badbg);color:var(--bad)}.tag.ns{background:var(--line);color:var(--soft)}
-.nav{display:flex;gap:1rem;flex-wrap:wrap;font-size:.9rem}
-#gatewrap{min-height:70vh;display:flex;align-items:center;justify-content:center;padding:1.5rem}
-#gatebox{width:min(22rem,100%);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1.25rem;display:flex;flex-direction:column;gap:.75rem}
-#gatebox input{font:inherit;padding:.7rem .8rem;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
-#gatebox button{font:inherit;font-weight:700;padding:.75rem;border:0;border-radius:10px;background:var(--ac);color:#fff;cursor:pointer}
+:root{
+  --bg:#F4F0F2;--card:#fff;--ink:#17141A;--soft:#5E5862;--mute:#8A838C;
+  --line:#E4DCE0;--ac:#8E2C4E;--ac2:#C45A7A;
+  --ok:#3E4A31;--okbg:#EEF2E6;--warn:#8A6D1A;--warnbg:#F8F0D4;
+  --bad:#8B1E2D;--badbg:#F8E6EA;--ns:#6E6870;--nsbg:#EEEAEF;
+  --shadow:0 10px 30px rgba(23,20,26,.06);
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#121014;--card:#1C191F;--ink:#F4F0F2;--soft:#A9A1AB;--mute:#7E7682;
+    --line:#322C36;--ac:#E4739A;--ac2:#F0A3BB;
+    --ok:#8CA06F;--okbg:#20241C;--warn:#E0C35A;--warnbg:#2A2410;
+    --bad:#E4739A;--badbg:#2A151C;--ns:#A9A1AB;--nsbg:#2A262E;
+    --shadow:0 10px 30px rgba(0,0,0,.28);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "Segoe UI",system-ui,-apple-system,sans-serif}
+h1,h2,h3{margin:0;letter-spacing:-.03em}
+button,input{font:inherit}
+a{color:var(--ac)}
+.num{font-variant-numeric:tabular-nums}
+#gatewrap{min-height:100vh;display:grid;place-items:center;padding:1.5rem}
+#gatebox{width:min(22rem,100%);background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1.4rem;display:flex;flex-direction:column;gap:.75rem;box-shadow:var(--shadow)}
+#gatebox h1{font-size:1.35rem}
+#gatebox input{padding:.75rem .85rem;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+#gatebox button,.btn{border:0;border-radius:10px;background:var(--ac);color:#fff;font-weight:700;padding:.75rem;cursor:pointer}
 .err{color:var(--bad);font-size:.85rem;display:none}
-.bullets{margin:.2rem 0 0;padding-left:1.1rem}.bullets li{margin:.25rem 0}
+.wrap{max-width:70rem;margin:0 auto;padding:1.1rem 1rem 3rem;display:flex;flex-direction:column;gap:1rem}
+.top{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;align-items:end}
+.top h1{font-size:clamp(1.45rem,4vw,1.9rem)}
+.top h1 span{color:var(--ac)}
+.sub,.meta{color:var(--soft);font-size:.88rem}
+.nav{display:flex;gap:.9rem;flex-wrap:wrap;font-size:.88rem}
+.hero{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1.15rem 1.2rem;box-shadow:var(--shadow)}
+.hero h2{font-size:1.28rem;line-height:1.25;max-width:44rem}
+.pills{display:flex;gap:.4rem;flex-wrap:wrap;margin:.75rem 0 .2rem}
+.pill{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;padding:.22rem .5rem;border-radius:999px;font-weight:700}
+.pill.ok{background:var(--okbg);color:var(--ok)}.pill.warn{background:var(--warnbg);color:var(--warn)}.pill.bad{background:var(--badbg);color:var(--bad)}.pill.ns{background:var(--nsbg);color:var(--ns)}
+.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin-top:.9rem}
+.action{border:1px solid var(--line);border-radius:12px;padding:.8rem .9rem;background:var(--bg)}
+.action b{display:block;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ac);margin-bottom:.25rem}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(9.2rem,1fr));gap:.65rem}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:.85rem .95rem}
+.kpi span{display:block;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.kpi b{display:block;font-size:1.35rem;letter-spacing:-.03em;margin:.15rem 0}
+.kpi em{font-style:normal;font-size:.78rem;color:var(--soft)}
+.kpi.hot{border-color:var(--ac);box-shadow:inset 0 0 0 1px var(--ac)}
+.grid2{display:grid;grid-template-columns:1.15fr .85fr;gap:.75rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1rem;overflow:auto}
+.card h2{font-size:.95rem;margin-bottom:.7rem}
+.funnel{display:flex;flex-direction:column;gap:.45rem}
+.frow{display:grid;grid-template-columns:7.2rem 1fr 6.5rem;gap:.55rem;align-items:center;font-size:.86rem}
+.fbar{height:.55rem;background:var(--nsbg);border-radius:99px;overflow:hidden}
+.fbar i{display:block;height:100%;background:var(--ac);border-radius:99px}
+.frow.bad .fbar i{background:var(--bad)}.frow.ok .fbar i{background:var(--ok)}.frow.warn .fbar i{background:var(--warn)}
+.cad{display:flex;flex-direction:column;gap:.7rem}
+.cad item,.cad-row{display:flex;flex-direction:column;gap:.25rem}
+.cad-row b{font-size:.82rem}
+.track{height:.5rem;background:var(--nsbg);border-radius:99px;overflow:hidden}
+.track i{display:block;height:100%;background:var(--ac)}
+.track.bad i{background:var(--bad)}.track.warn i{background:var(--warn)}.track.ok i{background:var(--ok)}
+.spark{width:100%;height:4.2rem;display:block}
+.list{display:flex;flex-direction:column;gap:.55rem}
+.row{display:grid;grid-template-columns:2.2rem 1fr auto;gap:.7rem;align-items:center;padding:.55rem 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.rank{font-size:.75rem;color:var(--mute);font-weight:700}
+.row h3{font-size:.9rem;font-weight:650;line-height:1.25}
+.metrics{display:flex;gap:.45rem;flex-wrap:wrap;justify-content:end}
+.chip{font-size:.72rem;padding:.12rem .4rem;border-radius:999px;background:var(--nsbg);color:var(--soft);white-space:nowrap}
+.chip.ok{background:var(--okbg);color:var(--ok)}.chip.warn{background:var(--warnbg);color:var(--warn)}.chip.bad{background:var(--badbg);color:var(--bad)}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+th,td{text-align:left;padding:.45rem .3rem;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:650}
+.filters{display:flex;gap:.4rem;flex-wrap:wrap;margin:0 0 .7rem}
+.filters button{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:.28rem .7rem;font-size:.8rem;font-weight:600;cursor:pointer}
+.filters button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.banner{border-radius:12px;padding:.85rem 1rem;border:1px solid var(--line)}
+.banner.ok{background:var(--okbg);color:var(--ok)}.banner.warn{background:var(--warnbg);color:var(--warn)}.banner.bad{background:var(--badbg);color:var(--bad)}
+.eye{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mute);margin:0 0 .35rem}
+.diag{margin:.65rem 0 0;padding-left:1.1rem}
+.diag li{margin:.28rem 0}
+footer{color:var(--mute);font-size:.78rem}
+@media(max-width:820px){
+  .actions,.grid2{grid-template-columns:1fr}
+  .frow{grid-template-columns:5.6rem 1fr 5.2rem}
+  .row{grid-template-columns:1.6rem 1fr}
+  .metrics{grid-column:2;justify-content:start}
+}
 </style>
 </head>
 <body>
 <div id="gatewrap">
   <div id="gatebox">
-    <h1 style="font-size:1.35rem">Panel · Hoy me <span>gusto</span></h1>
-    <p class="meta" style="margin:0">PIN para ver estadísticas</p>
+    <h1>Panel · Hoy me <span style="color:var(--ac)">gusto</span></h1>
+    <p class="meta" style="margin:0">PIN para ver estadísticas. Solo lectura de JSON público.</p>
     <input id="pin" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN">
     <button id="pinbtn" type="button">Entrar</button>
     <p class="err" id="pinerr">PIN incorrecto</p>
   </div>
 </div>
-<div class="w" id="app" hidden>
-  <header>
-    <h1>Panel ejecutivo · Hoy me <span>gusto</span></h1>
-    <p class="sub">Instagram (Actions) + TikTok Studio CSV · no uses la parrilla del perfil</p>
+<div class="wrap" id="app" hidden>
+  <header class="top">
+    <div>
+      <p class="eye">Cuadro de mando · @hoymegusto</p>
+      <h1>Qué está pasando <span>hoy</span></h1>
+      <p class="sub" id="updated">Cargando JSON…</p>
+    </div>
     <p class="nav"><a href="/hoymegusto/">Enlaces de compra</a> · <a href="https://github.com/maestrea76/hoymegusto-datos">Repo datos</a></p>
   </header>
-  <div id="status" class="banner">Cargando…</div>
+  <div id="status" class="banner warn">Cargando…</div>
+  <section class="hero" id="hero"></section>
   <section>
-    <h2 class="meta" style="letter-spacing:.12em;text-transform:uppercase;font-size:.7rem">Cuenta</h2>
-    <div class="grid" id="kpis"></div>
+    <p class="eye">KPIs</p>
+    <div class="kpis" id="kpis"></div>
   </section>
-  <section>
-    <h2 class="meta" style="letter-spacing:.12em;text-transform:uppercase;font-size:.7rem">Insights 30 días / disponibles</h2>
-    <div class="grid" id="ins"></div>
+  <section class="grid2">
+    <article class="card">
+      <h2>Embudo de viralización</h2>
+      <div class="funnel" id="funnel"></div>
+      <p class="meta" id="funnelnote" style="margin:.7rem 0 0"></p>
+    </article>
+    <article class="card">
+      <h2>Cadencia 7 días</h2>
+      <div class="cad" id="cadence"></div>
+      <p class="meta" id="cola" style="margin:.7rem 0 0"></p>
+    </article>
+  </section>
+  <section class="grid2">
+    <article class="card">
+      <h2>Instagram · alcance diario</h2>
+      <div id="igchart"></div>
+      <p class="meta" id="igchartmeta"></p>
+    </article>
+    <article class="card">
+      <h2>TikTok · views diarias (Overview)</h2>
+      <div id="ttchart"></div>
+      <p class="meta" id="ttchartmeta"></p>
+    </article>
+  </section>
+  <section class="grid2">
+    <article class="card">
+      <h2>Top piezas</h2>
+      <div class="list" id="top"></div>
+    </article>
+    <article class="card">
+      <h2>Lectura para el estratega</h2>
+      <ul class="diag" id="exec"></ul>
+    </article>
   </section>
   <section class="card">
-    <h2>Lectura ejecutiva</h2>
-    <ul class="bullets" id="exec"></ul>
+    <h2>Publicaciones Instagram</h2>
+    <div class="filters" id="igfilters"></div>
+    <div id="igtabla"></div>
   </section>
   <section class="card">
-    <h2>Publicaciones</h2>
-    <div id="tabla"></div>
-  </section>
-  <section>
-    <h2 class="meta" style="letter-spacing:.12em;text-transform:uppercase;font-size:.7rem">TikTok (Studio CSV)</h2>
-    <div class="grid" id="ttkpis"></div>
-    <p class="meta" id="ttmeta" style="margin:.5rem 0 0"></p>
-  </section>
-  <section class="card">
-    <h2>TikTok · días con señal</h2>
+    <h2>TikTok · vídeos (CSV Studio / Analista)</h2>
+    <p class="meta" id="ttmeta"></p>
     <div id="tttabla"></div>
   </section>
-  <footer class="meta">Umbrales IG: visto ≥25% · saves ≥1% · shares ≥0,5% · clics ≥0,3%. TT: Overview diario de cuenta (sin video_id hasta export Videos). PIN en sesión.</footer>
+  <footer>
+    Umbrales fijos (belleza, cuenta temprana): save ≥1% · share ≥0,5% · views→perfil TT ≥1% · clics ≥0,3%.
+    Muestra &lt;50 views → n/s. Números de la API / CSV, no de la parrilla del perfil.
+    El panel no llama a Graph ni guarda secretos.
+  </footer>
 </div>
 <script>
 const PANEL_PIN="100592";
-const SRC="https://raw.githubusercontent.com/maestrea76/hoymegusto-datos/main/datos/estadisticas.json";
-const FALLBACK="https://cdn.jsdelivr.net/gh/maestrea76/hoymegusto-datos@main/datos/estadisticas.json";
-const TT_SRC="https://raw.githubusercontent.com/maestrea76/hoymegusto-datos/main/datos/tiktok/tiktok_overview_latest.json";
-const TT_FALLBACK="https://cdn.jsdelivr.net/gh/maestrea76/hoymegusto-datos@main/datos/tiktok/tiktok_overview_latest.json";
+const RAW="https://raw.githubusercontent.com/maestrea76/hoymegusto-datos/main/";
+const CDN="https://cdn.jsdelivr.net/gh/maestrea76/hoymegusto-datos@main/";
+const IG_PATH="datos/estadisticas.json";
+const TT_JSON_PATHS=["datos/tiktok.json","datos/tiktok/tiktok.json","datos/tiktok/tiktok_content_latest.json"];
+const TT_OVERVIEW_PATHS=["datos/tiktok/tiktok_overview_latest.json"];
+const COLA_PATHS=["datos/cola.json","datos/canonicos.json"];
+const TT_PROFILE_META=0.01;
+const MIN_N=50;
+let igFilter="all";
+let cache={ig:null,tt:null,ov:null,cola:null,src:{}};
+
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function num(v){return (v===0||v)?Number(v):null}
 function fmt(v){if(v===null||v===undefined||Number.isNaN(v))return "—";return Intl.NumberFormat("es-ES").format(v)}
-function pct(n,d){if(d===null||d<50||n===null)return null;return 100*n/d}
-function tagRate(p,good,mid){if(p===null)return '<span class="tag ns">n/s</span>';const cls=p>=good?"ok":p>=mid?"warn":"bad";return `<span class="tag ${cls}">${p.toFixed(1).replace(".",",")}%</span>`}
+function pct(n,d){if(d===null||d===0||n===null||Number.isNaN(n)||Number.isNaN(d))return null;return n/d}
+function pctLabel(p,digits){if(p===null)return "—";return (100*p).toFixed(digits??1).replace(".",",")+"%"}
 function pick(obj,keys){if(!obj)return null;for(const k of keys){if(obj[k]!==undefined&&obj[k]!==null)return obj[k]}return null}
-function kpi(label,value,hot){return `<div class="kpi${hot?" hot":""}"><span>${label}</span><b>${fmt(value)}</b></div>`}
-function titleFromCaption(c){if(!c)return "—";const line=c.split("\n").map(s=>s.trim()).find(Boolean)||c;return line.slice(0,48)+(line.length>48?"…":"")}
+function rateCls(p,good,mid){if(p===null)return "ns";return p>=good?"ok":p>=mid?"warn":"bad"}
+function tag(p,good,mid){const cls=rateCls(p,good,mid);return `<span class="chip ${cls}">${cls==="ns"?"n/s":pctLabel(p)}</span>`}
+function titleFromCaption(c){if(!c)return "Sin pie";const line=c.split("\n").map(s=>s.trim()).find(Boolean)||c;return line.replace(/\s+/g," ").slice(0,72)+(line.length>72?"…":"")}
 function flatInsights(block){const out={};if(!block)return out;const rows=Array.isArray(block)?block:(block.data||[]);for(const row of rows){const name=row.name;if(!name)continue;if(row.total_value&&row.total_value.value!==undefined)out[name]=row.total_value.value;else if(row.values&&row.values[0])out[name]=row.values[0].value}return out}
-async function load(){
-  const statusEl=document.getElementById("status");
-  let data,src=SRC;
-  try{const r=await fetch(SRC+"?t="+Date.now());if(!r.ok)throw new Error(r.status);data=await r.json()}
-  catch(e1){try{src=FALLBACK;const r=await fetch(FALLBACK+"?t="+Date.now());if(!r.ok)throw new Error(r.status);data=await r.json()}catch(e2){statusEl.className="banner";statusEl.textContent="No pude cargar el JSON.";return}}
-  const gen=data.generado||"sin fecha";
-  const c=data.cuenta||{};
-  const cuentaErr=!!c.error;
-  const insErr=data.cuenta_insights_errores||{};
-  const hasInsErr=Object.keys(insErr).length>0;
-  if(cuentaErr){statusEl.className="banner";statusEl.textContent=`Cuenta con error · ${gen}`;}
-  else if(hasInsErr){statusEl.className="banner warn";statusEl.textContent=`Cuenta OK, insights parciales · ${gen} · ${src}`;}
-  else{statusEl.className="banner ok";statusEl.textContent=`OK · ${gen} · ${src}`;}
-  const followers=num(pick(c,["followers_count","seguidores","followers"]));
-  const mediaCount=num(pick(c,["media_count"]));
-  const follows=num(pick(c,["follows_count"]));
-  document.getElementById("kpis").innerHTML=[
-    kpi("Seguidores",followers),
-    kpi("Reels / media",mediaCount),
-    kpi("Siguiendo",follows),
-    kpi("Publicaciones en JSON",Array.isArray(data.publicaciones)?data.publicaciones.length:0),
-  ].join("");
-  const ti=flatInsights(data.cuenta_insights&&data.cuenta_insights.totales_30d)||flatInsights(data.cuenta_insights);
-  const clicks=num(ti.website_clicks);
-  const pviews=num(ti.profile_views);
-  const views=num(ti.views);
-  const reach=num(ti.reach);
-  const engaged=num(ti.accounts_engaged);
-  const interacts=num(ti.total_interactions);
-  document.getElementById("ins").innerHTML=[
-    kpi("Clics enlace",clicks,clicks!==null&&clicks>0),
-    kpi("Visitas perfil",pviews),
-    kpi("Views cuenta",views),
-    kpi("Alcance cuenta",reach),
-    kpi("Cuentas que interactúan",engaged),
-    kpi("Interacciones",interacts),
-  ].join("");
-  const posts=Array.isArray(data.publicaciones)?data.publicaciones:[];
-  const exec=[];
-  if(cuentaErr)exec.push("La cuenta API falló: no tomes decisiones con este JSON.");
-  if(hasInsErr)exec.push("Hay errores de insights: no interpretes clics/views de cuenta hasta que el token tenga scopes completos.");
-  if(clicks===0)exec.push("website_clicks = 0: la bio aún no convierte (o no hay datos). Prioridad: alcance + CTA claro.");
-  if(clicks===null&&!hasInsErr)exec.push("Sin website_clicks en el JSON.");
-  if(followers!==null&&followers<100)exec.push(`Audiencia temprana (${fmt(followers)} seguidores): Associates aparcado.`);
-  const withViews=posts.filter(p=>num(pick(p.insights||{},["views","plays"]))!==null);
-  if(withViews.length){
-    const best=withViews.slice().sort((a,b)=>(num(pick(b.insights,["views"]))||0)-(num(pick(a.insights,["views"]))||0))[0];
-    const bv=num(pick(best.insights,["views"]));
-    exec.push(`Mejor reel por views API: ${titleFromCaption(best.caption)} (${fmt(bv)}).`);
-  } else if(posts.length){
-    exec.push("Hay posts pero sin views en insights: usa likes/comentarios solo como señal débil.");
+function seriesNamed(block,name){const rows=Array.isArray(block)?block:(block&&block.data)||[];const row=rows.find(r=>r.name===name);return (row&&row.values)||[]}
+async function fetchJSON(path){
+  const t="?t="+Date.now();
+  try{const r=await fetch(RAW+path+t);if(!r.ok)throw 0;return await r.json()}
+  catch(e){const r=await fetch(CDN+path+t);if(!r.ok)throw new Error(path);return await r.json()}
+}
+async function firstJSON(paths){
+  for(const p of paths){
+    try{const data=await fetchJSON(p);return {data,path:p}}catch(e){}
   }
-  if(!exec.length)exec.push("Sin alertas. Revisa la tabla de publicaciones.");
-  document.getElementById("exec").innerHTML=exec.map(x=>`<li>${x}</li>`).join("");
-  if(!posts.length){document.getElementById("tabla").innerHTML='<p class="meta">Sin publicaciones.</p>';return;}
-  const rows=posts.map(p=>{
+  return {data:null,path:null};
+}
+function spark(values){
+  const nums=(values||[]).map(Number);
+  if(nums.length<2)return `<p class="meta">Sin serie diaria.</p>`;
+  const w=320,h=64,max=Math.max(...nums,1),min=Math.min(...nums,0),span=max-min||1;
+  const pts=nums.map((v,i)=>{
+    const x=(i/(nums.length-1))*w;
+    const y=h-((v-min)/span)*(h-6)-3;
+    return x.toFixed(1)+","+y.toFixed(1);
+  }).join(" ");
+  const last=nums[nums.length-1];
+  return `<svg viewBox="0 0 ${w} ${h}" class="spark" role="img" aria-label="Serie"><polyline fill="none" stroke="currentColor" stroke-width="2.2" points="${pts}"/></svg><p class="meta">Último día ${fmt(last)} · máx. ${fmt(max)}</p>`;
+}
+function parsePosts(ig){
+  return (Array.isArray(ig.publicaciones)?ig.publicaciones:[]).map(p=>{
     const ins=p.insights||{};
-    const v=num(pick(ins,["views","plays"]));
-    const r=num(pick(ins,["reach"]));
+    const views=num(pick(ins,["views","plays"]));
+    const reach=num(pick(ins,["reach"]));
     const likes=num(pick(ins,["likes"]))??num(p.like_count);
     const comments=num(pick(ins,["comments"]))??num(p.comments_count);
     const shares=num(pick(ins,["shares"]));
     const saved=num(pick(ins,["saved","saves"]));
     const avg=num(pick(ins,["segundos_medios"]))??(num(pick(ins,["ig_reels_avg_watch_time"]))!==null?num(pick(ins,["ig_reels_avg_watch_time"]))/1000:null);
-    const saveRate=pct(saved,v); const shareRate=pct(shares,v);
-    const when=(p.timestamp||"").slice(0,10);
-    const name=titleFromCaption(p.caption);
-    const link=p.permalink?`<a href="${p.permalink}" target="_blank" rel="noopener">abrir</a>`:"—";
-    const insBad=p.insights_error||p.insights_error_reels;
-    return `<tr>
-      <td>${name}<div class="meta">${when} · ${link}${insBad?' · <span class="tag bad">insights err</span>':''}</div></td>
-      <td>${fmt(v)}</td><td>${fmt(r)}</td><td>${fmt(likes)}</td><td>${fmt(comments)}</td><td>${fmt(shares)}</td><td>${fmt(saved)}</td>
-      <td>${avg!==null?avg.toFixed(1).replace(".",",")+"s":"—"}</td>
-      <td>${tagRate(saveRate,1,0.4)}</td><td>${tagRate(shareRate,0.5,0.2)}</td>
-    </tr>`}).join("");
-  document.getElementById("tabla").innerHTML=`<table><thead><tr>
-    <th>Pieza</th><th>Views</th><th>Alcance</th><th>♡</th><th>Coment.</th><th>Comp.</th><th>Guard.</th><th>Watch medio</th><th>Save%</th><th>Share%</th>
-  </tr></thead><tbody>${rows}</tbody></table>`;
+    const kind=p.media_product_type||p.media_type||"POST";
+    return {
+      id:p.id,when:(p.timestamp||"").slice(0,10),ts:p.timestamp,kind,
+      title:titleFromCaption(p.caption),permalink:p.permalink,
+      views,reach,likes,comments,shares,saved,avg,
+      saveRate:pct(saved,views),shareRate:pct(shares,views),
+      sample:views!==null&&views>=MIN_N,insBad:!!(p.insights_error||p.insights_error_reels)
+    };
+  });
 }
-
-async function loadTikTok(){
-  const meta=document.getElementById("ttmeta");
-  const kpis=document.getElementById("ttkpis");
-  const tabla=document.getElementById("tttabla");
-  if(!kpis)return;
-  let data=null;
-  try{const r=await fetch(TT_SRC+"?t="+Date.now());if(!r.ok)throw 0;data=await r.json()}
-  catch(e){try{const r=await fetch(TT_FALLBACK+"?t="+Date.now());if(!r.ok)throw 0;data=await r.json()}catch(e2){
-    kpis.innerHTML=kpi("TikTok","sin CSV");
-    meta.textContent="Sube un CSV de Studio y se actualiza este bloque.";
-    tabla.innerHTML='<p class="meta">Sin Overview TT.</p>';
-    return;
-  }}
-  const t=data.totals||{};
-  const range=(data.date_range||[]).join(" → ");
-  kpis.innerHTML=[
-    kpi("Views TT",t.views),
-    kpi("Likes TT",t.likes),
-    kpi("Comentarios TT",t.comments),
-    kpi("Shares TT",t.shares),
-    kpi("Visitas perfil TT",t.profile_views),
+function bottleneck(p){
+  if(!p.sample){
+    if(p.avg!==null&&p.avg<5)return {cls:"bad",label:"gancho",txt:"Muestra chica y se van pronto. Cambia el primer plano."};
+    return {cls:"ns",label:"n/s",txt:"Menos de 50 views: el algoritmo no ha empujado. No leas % todavía."};
+  }
+  if(p.avg!==null&&p.avg<5)return {cls:"bad",label:"gancho",txt:"Watch medio < 5 s: el vídeo muere en el segundo 1–3."};
+  if((p.shareRate===null||p.shareRate<0.002)&&(p.saveRate===null||p.saveRate<0.004))return {cls:"bad",label:"sin viral",txt:"Hay views y no se guarda ni se manda. Adelanta la pega."};
+  if(p.shareRate!==null&&p.shareRate<0.002)return {cls:"warn",label:"sin shares",txt:"La pega no es enviable. Se comparte el dato incómodo, no el elogio."};
+  if(p.saveRate!==null&&p.saveRate<0.004)return {cls:"warn",label:"sin saves",txt:"Falta un dato concreto (precio, dosis, truco) que merezca guardarse."};
+  return {cls:"ok",label:"señal",txt:"Hay señal de distribución o de guardado/compartido."};
+}
+function inDays(iso,ref,n){
+  if(!iso)return false;
+  const t=Date.parse(iso.length===10?iso+"T12:00:00":iso);
+  if(Number.isNaN(t))return false;
+  return (ref-t)<=n*86400000 && t<=ref+86400000;
+}
+function diagnose(ig,posts,tt,ov,cola){
+  const clicks=ig.clicks,pviews=ig.pviews,views=ig.viewsSum;
+  const low=posts.filter(p=> (p.views||0)<50).length;
+  const shares=posts.reduce((a,p)=>a+(p.shares||0),0);
+  const saves=posts.reduce((a,p)=>a+(p.saved||0),0);
+  const items=[];
+  const pills=[];
+  if(clicks===0&&pviews>0){
+    items.push({sev:"bad",t:"Cero clics al enlace",d:`${fmt(pviews)} visitas al perfil y website_clicks = 0. El contenido no convierte. Story con sticker de enlace en cada publicación; CTA de bio en el segundo 1.`});
+    pills.push(["Conversión","bad"]);
+  }else if(clicks>0){pills.push(["Conversión","ok"]);}else{pills.push(["Conversión","ns"]);}
+  const ttViews=ov&&num(ov.totals&&ov.totals.views);
+  const ttProf=ov&&num(ov.totals&&ov.totals.profile_views);
+  const ttRatio=pct(ttProf,ttViews);
+  if(ttRatio!==null&&ttRatio<TT_PROFILE_META){
+    items.push({sev:"bad",t:"TikTok no lleva al perfil",d:`Views→perfil ${pctLabel(ttRatio,2)} (meta ≥1%). Hay alcance y no hay visita. El núcleo orgánico no pide el follow; las promo inflan views.`});
+    pills.push(["Views→perfil TT","bad"]);
+  }else if(ttRatio!==null){pills.push(["Views→perfil TT","ok"]);}else{pills.push(["Views→perfil TT","ns"]);}
+  if(posts.length&&low/posts.length>=0.5){
+    items.push({sev:"bad",t:"El algoritmo no empuja en Instagram",d:`${low} de ${posts.length} piezas bajo 50 views. No toques el producto: cambia el gancho (texto en pantalla, sin intro).`});
+    pills.push(["Distribución IG","bad"]);
+  }else{pills.push(["Distribución IG",posts.length?"warn":"ns"]);}
+  if(views>=200&&shares+saves<5){
+    items.push({sev:"warn",t:"No hay bucle viral",d:`${fmt(saves)} guardados y ${fmt(shares)} compartidos en el JSON. En belleza manda el save; se comparte la pega, no el elogio.`});
+    pills.push(["Viral","bad"]);
+  }else{pills.push(["Viral",shares+saves>=5?"ok":"warn"]);}
+  const nucleo=(tt&&tt.videos||[]).filter(v=>v.etiqueta==="nucleo");
+  const promos=(tt&&tt.videos||[]).filter(v=>v.etiqueta==="promo"||v.promo);
+  if(promos.length&&nucleo.length){
+    const med=tt.summary&&tt.summary.median_nucleo_organic;
+    items.push({sev:"warn",t:"No leas el pico de TikTok como orgánico",d:`${promos.length} piezas promo y ${nucleo.length} de núcleo. Mediana orgánica ${fmt(med)} views. Las decisiones de formato salen del núcleo, no de la promo.`});
+  }
+  if(!items.length)items.push({sev:"ok",t:"Sin alertas duras",d:"Revisa top piezas y cadencia. Sigue sin inventar números que no estén en el JSON."});
+  const worst=items[0];
+  return {items,pills,headline:worst.t,lead:worst.d,sev:worst.sev};
+}
+function kpiHTML(label,value,note,hot){return `<div class="kpi${hot?" hot":""}"><span>${esc(label)}</span><b class="num">${value}</b>${note?`<em>${note}</em>`:""}</div>`}
+function renderHero(dx,posts,tt,ov){
+  const actions=[];
+  actions.push({k:"01 · Clics",t:"Cada Reel/carrusel sale con Story de enlace. Sin eso, website_clicks se queda en 0."});
+  const bestShare=posts.slice().sort((a,b)=>(b.shares||0)-(a.shares||0))[0];
+  if(bestShare&&bestShare.shares>0)actions.push({k:"02 · Formato",t:`Repite el gancho de «${bestShare.title}» (${bestShare.shares} shares). La pega va en el segundo 1–3.`});
+  else actions.push({k:"02 · Gancho",t:"Tarjeta de primer segundo con la pega, no con la marca. Watch < 5 s = el vídeo no existe para el algoritmo."});
+  const ttN=(tt&&tt.videos||[]).length;
+  actions.push({k:"03 · Cadencia TT",t:"Objetivo ~2/día. El núcleo orgánico es la referencia; promo y outlier se etiquetan aparte."});
+  document.getElementById("hero").innerHTML=`
+    <p class="eye">Diagnóstico</p>
+    <h2>${esc(dx.headline)}</h2>
+    <p class="sub" style="margin:.45rem 0 0;max-width:46rem">${esc(dx.lead)}</p>
+    <div class="pills">${dx.pills.map(([n,c])=>`<span class="pill ${c}">${esc(n)}</span>`).join("")}</div>
+    <div class="actions">${actions.map(a=>`<div class="action"><b>${esc(a.k)}</b>${esc(a.t)}</div>`).join("")}</div>`;
+}
+function renderKpis(ig,posts,tt,ov){
+  const fol=ig.followers;
+  const delta=ig.followsNet;
+  const clicks=ig.clicks;
+  const pviews=ig.pviews;
+  const views=ig.viewsSum;
+  const reach=ig.reachSum;
+  const ratioIG=pct(pviews,views);
+  const ttFol=tt&&num(pick(tt,["followers","followers_count"]));
+  const ttViews=ov&&num(ov.totals&&ov.totals.views);
+  const ttProf=ov&&num(ov.totals&&ov.totals.profile_views);
+  const ttRatio=pct(ttProf,ttViews);
+  document.getElementById("kpis").innerHTML=[
+    kpiHTML("Seguidores IG",fmt(fol),delta!==null?`Net 30d ${fmt(delta)}`:"Sin serie histórica en el JSON"),
+    kpiHTML("Seguidores TT",fmt(ttFol),"Campo ausente en Overview/CSV"),
+    kpiHTML("Clics enlace",fmt(clicks),clicks===0?"Crítico · bio no convierte":"30 días",clicks===0),
+    kpiHTML("Visitas perfil IG",fmt(pviews),`Views→perfil ${pctLabel(ratioIG,1)}`),
+    kpiHTML("Views IG (piezas)",fmt(views),`Alcance ${fmt(reach)}`),
+    kpiHTML("Views TT Overview",fmt(ttViews),`Views→perfil ${pctLabel(ttRatio,2)} · meta ≥1%`),
+    kpiHTML("Piezas IG",fmt(posts.length),`${posts.filter(p=>(p.views||0)<50).length} bajo 50 views`),
+    kpiHTML("Vídeos TT",fmt((tt&&tt.videos||[]).length),tt&&tt.summary?`Núcleo med. ${fmt(tt.summary.median_nucleo_organic)}`:"CSV Analista"),
   ].join("");
-  meta.textContent=`Import ${data.imported_at||"—"} · ${range||"sin rango"} · ${data.source||"Studio"} · capa cuenta (no por vídeo)`;
-  const days=(data.nonzero_days||[]).slice().reverse();
-  if(!days.length){tabla.innerHTML='<p class="meta">Sin días con señal en el Overview.</p>';return;}
-  const rows=days.map(d=>`<tr>
-    <td>${d.fecha||"—"}</td>
-    <td>${fmt(d.views)}</td><td>${fmt(d.likes)}</td><td>${fmt(d.comments)}</td>
-    <td>${fmt(d.shares)}</td><td>${fmt(d.profile_views)}</td>
-  </tr>`).join("");
-  tabla.innerHTML=`<table><thead><tr>
-    <th>Fecha</th><th>Views</th><th>♡</th><th>Coment.</th><th>Shares</th><th>Perfil</th>
-  </tr></thead><tbody>${rows}</tbody></table>`;
 }
-
+function renderFunnel(ig,posts,ov){
+  const views=ig.viewsSum||0;
+  const pviews=ig.pviews||0;
+  const clicks=ig.clicks||0;
+  const fol=ig.followers||0;
+  const ttViews=ov&&num(ov.totals&&ov.totals.views)||0;
+  const ttProf=ov&&num(ov.totals&&ov.totals.profile_views)||0;
+  const steps=[
+    {n:"Views IG",v:views,w:100,cls:"ok"},
+    {n:"Perfil IG",v:pviews,w:views?Math.max(4,100*pviews/views):0,cls:rateCls(pct(pviews,views),0.08,0.03)},
+    {n:"Clics IG",v:clicks,w:pviews?Math.max(clicks?8:2,100*clicks/Math.max(pviews,1)):2,cls:clicks>0?"ok":"bad"},
+    {n:"Followers IG",v:fol,w:views?Math.max(4,100*fol/Math.max(views,1)):4,cls:"warn"},
+    {n:"Views TT",v:ttViews,w:100,cls:"ok"},
+    {n:"Perfil TT",v:ttProf,w:ttViews?Math.max(4,100*ttProf/ttViews):0,cls:rateCls(pct(ttProf,ttViews),TT_PROFILE_META,0.005)},
+  ];
+  document.getElementById("funnel").innerHTML=steps.map(s=>`<div class="frow ${s.cls}"><b>${esc(s.n)}</b><div class="fbar"><i style="width:${Math.min(100,s.w)}%"></i></div><span class="num">${fmt(s.v)}</span></div>`).join("");
+  document.getElementById("funnelnote").textContent="El agujero de dinero está en perfil → clic. El de crecimiento, en views → perfil (TT) y en shares/saves (IG).";
+}
+function renderCadence(posts,tt,cola,ref){
+  const igWeek=posts.filter(p=>inDays(p.ts||p.when,ref,7));
+  const reels=igWeek.filter(p=>String(p.kind).toUpperCase().includes("REEL")||p.kind==="VIDEO");
+  const cars=igWeek.filter(p=>String(p.kind).toUpperCase().includes("CAROUSEL")||p.kind==="CAROUSEL_ALBUM");
+  const ttWeek=(tt&&tt.videos||[]).filter(v=>inDays(v.fecha,ref,7));
+  const ttTarget=14,igCarTarget=2,igReelTarget=1;
+  const ttCls=ttWeek.length>=10?"ok":ttWeek.length>=6?"warn":"bad";
+  const carCls=cars.length>=1&&cars.length<=3?"ok":cars.length===0?"bad":"warn";
+  const reelCls=reels.length<=3?"ok":"warn";
+  const bar=(n,t)=>Math.min(100,100*n/Math.max(t,1));
+  document.getElementById("cadence").innerHTML=`
+    <div class="cad-row"><b>TikTok ${ttWeek.length}/${ttTarget} · objetivo ~2/día</b><div class="track ${ttCls}"><i style="width:${bar(ttWeek.length,ttTarget)}%"></i></div></div>
+    <div class="cad-row"><b>IG carruseles ${cars.length} · objetivo 1–2 / semana</b><div class="track ${carCls}"><i style="width:${bar(cars.length,igCarTarget)}%"></i></div></div>
+    <div class="cad-row"><b>IG Reels ${reels.length} · 1 largo opcional</b><div class="track ${reelCls}"><i style="width:${bar(reels.length,Math.max(igReelTarget,reels.length||1))}%"></i></div></div>`;
+  if(cola&&(cola.cola||cola.items||cola.canonicos)){
+    const rows=cola.cola||cola.items||cola.canonicos||[];
+    const pend=rows.filter(x=>["listo","producido","pendiente","canonico","canónico"].includes(String(x.estado||x.status||"").toLowerCase()));
+    const pub=rows.filter(x=>["usado","publicado","published"].includes(String(x.estado||x.status||"").toLowerCase()));
+    document.getElementById("cola").textContent=`Cola JSON: ${pend.length} pendientes · ${pub.length} publicados.`;
+  }else{
+    document.getElementById("cola").textContent="Cola canónicos: no hay datos/cola.json ni datos/canonicos.json en hoymegusto-datos. El panel no inventa el estado de la cola.";
+  }
+}
+function renderTop(posts,tt){
+  const ig=posts.slice().sort((a,b)=>(b.views||0)-(a.views||0)).slice(0,3);
+  const ttV=(tt&&tt.videos||[]).slice().sort((a,b)=>(b.views||0)-(a.views||0)).slice(0,3);
+  const block=(label,rows,kind)=>rows.map((p,i)=>{
+    const bn=kind==="ig"?bottleneck(p):null;
+    const et=p.etiqueta|| (p.promo?"promo":"");
+    return `<div class="row"><div class="rank">${label}${i+1}</div><div><h3>${esc(p.title||p.permalink||"—")}</h3><p class="meta">${esc(p.when||p.fecha||"")} · ${fmt(p.views)} views${p.permalink?` · <a href="${esc(p.permalink)}" target="_blank" rel="noopener">abrir</a>`:""}</p></div><div class="metrics">${bn?`<span class="chip ${bn.cls}">${esc(bn.label)}</span>`:""}${et?`<span class="chip">${esc(et)}</span>`:""}<span class="chip">${fmt(p.shares||0)} sh</span></div></div>`;
+  }).join("");
+  document.getElementById("top").innerHTML=block("IG ",ig,"ig")+block("TT ",ttV,"tt")||`<p class="meta">Sin piezas.</p>`;
+}
+function renderExec(dx,posts,ig){
+  const extra=dx.items.map(x=>`<li><b>${esc(x.t)}.</b> ${esc(x.d)}</li>`);
+  const best=posts.slice().sort((a,b)=>(b.views||0)-(a.views||0))[0];
+  if(best)extra.push(`<li><b>Mejor Reel API:</b> ${esc(best.title)} (${fmt(best.views)} views, watch ${best.avg!==null?String(best.avg).replace(".",",")+"s":"—"}).</li>`);
+  extra.push(`<li>Manda la API, no la parrilla. website_clicks es el único KPI de dinero hoy (${fmt(ig.clicks)}).</li>`);
+  document.getElementById("exec").innerHTML=extra.join("");
+}
+function renderIGTable(posts){
+  const btns=[["all","Todas"],["top","Top views"],["recent","Recientes"],["low","&lt;50 views"]];
+  document.getElementById("igfilters").innerHTML=btns.map(([id,l])=>`<button type="button" data-f="${id}" class="${igFilter===id?"on":""}">${l}</button>`).join("");
+  document.getElementById("igfilters").onclick=e=>{
+    const b=e.target.closest("button");if(!b)return;igFilter=b.dataset.f;renderIGTable(posts);
+  };
+  let rows=posts.slice();
+  if(igFilter==="top")rows.sort((a,b)=>(b.views||0)-(a.views||0));
+  else if(igFilter==="recent")rows.sort((a,b)=>String(b.when).localeCompare(String(a.when)));
+  else if(igFilter==="low")rows=rows.filter(p=>(p.views||0)<50);
+  else rows.sort((a,b)=>String(b.when).localeCompare(String(a.when)));
+  if(!rows.length){document.getElementById("igtabla").innerHTML='<p class="meta">Sin publicaciones en este filtro.</p>';return;}
+  document.getElementById("igtabla").innerHTML=`<table><thead><tr>
+    <th>Pieza</th><th>Tipo</th><th>Views</th><th>Alcance</th><th>Watch</th><th>Save%</th><th>Share%</th><th>Cuello</th>
+  </tr></thead><tbody>${rows.map(p=>{
+    const bn=bottleneck(p);
+    const link=p.permalink?`<a href="${esc(p.permalink)}" target="_blank" rel="noopener">abrir</a>`:"—";
+    return `<tr>
+      <td>${esc(p.title)}<div class="meta">${esc(p.when)} · ${link}${p.insBad?' · <span class="chip bad">insights err</span>':""}</div></td>
+      <td>${esc(p.kind)}</td>
+      <td class="num">${fmt(p.views)}</td><td class="num">${fmt(p.reach)}</td>
+      <td class="num">${p.avg!==null?String(p.avg).replace(".",",")+"s":"—"}</td>
+      <td>${p.sample?tag(p.saveRate,0.01,0.004):'<span class="chip ns">n/s</span>'}</td>
+      <td>${p.sample?tag(p.shareRate,0.005,0.002):'<span class="chip ns">n/s</span>'}</td>
+      <td><span class="chip ${bn.cls}">${esc(bn.label)}</span></td>
+    </tr>`;
+  }).join("")}</tbody></table>`;
+}
+function renderTT(tt,ov){
+  const videos=(tt&&(tt.videos||tt.data))||[];
+  const src=cache.src.tt||"sin tiktok.json";
+  const sum=tt&&tt.summary;
+  document.getElementById("ttmeta").textContent=`Fuente ${src}${sum?` · núcleo med. ${fmt(sum.median_nucleo_organic)} · ${fmt((sum.promos||[]).length)} promo · ${fmt((sum.outliers||[]).length)} outlier`:""}. Promo no se lee como viral orgánico.`;
+  if(!videos.length){document.getElementById("tttabla").innerHTML='<p class="meta">Sin vídeos TT en el JSON del Analista.</p>';return;}
+  const ordered=videos.slice().sort((a,b)=>(b.views||0)-(a.views||0));
+  document.getElementById("tttabla").innerHTML=`<table><thead><tr>
+    <th>Vídeo</th><th>Etiqueta</th><th>Views</th><th>♡</th><th>Shares</th><th>Interp.</th>
+  </tr></thead><tbody>${ordered.map(v=>{
+    const title=v.title||v.permalink||v.video_id||"—";
+    const et=v.etiqueta|| (v.promo?"promo":"nucleo");
+    const link=v.permalink?`<a href="${esc(v.permalink)}" target="_blank" rel="noopener">abrir</a>`:"—";
+    return `<tr>
+      <td>${esc(String(title).slice(0,80))}<div class="meta">${esc(v.fecha||"")} · ${link}</div></td>
+      <td><span class="chip">${esc(et)}</span></td>
+      <td class="num">${fmt(v.views)}</td><td class="num">${fmt(v.likes)}</td>
+      <td class="num">${fmt(v.shares)}</td><td>${esc(v.interpretacion||"—")}</td>
+    </tr>`;
+  }).join("")}</tbody></table>`;
+}
+async function load(){
+  const status=document.getElementById("status");
+  const igPack=await firstJSON([IG_PATH]);
+  const ttPack=await firstJSON(TT_JSON_PATHS);
+  const ovPack=await firstJSON(TT_OVERVIEW_PATHS);
+  const colaPack=await firstJSON(COLA_PATHS);
+  cache={ig:igPack.data,tt:ttPack.data,ov:ovPack.data,cola:colaPack.data,src:{ig:igPack.path,tt:ttPack.path,ov:ovPack.path,cola:colaPack.path}};
+  if(!igPack.data){status.className="banner bad";status.textContent="No pude cargar datos/estadisticas.json.";return;}
+  const ig=igPack.data;
+  const c=ig.cuenta||{};
+  const ti=flatInsights(ig.cuenta_insights&&ig.cuenta_insights.totales_30d)||flatInsights(ig.cuenta_insights);
+  const posts=parsePosts(ig);
+  const viewsDaily=seriesNamed(ig.cuenta_insights&&ig.cuenta_insights.serie_diaria,"views").map(v=>num(v.value)||0);
+  const reachDaily=seriesNamed(ig.cuenta_insights&&ig.cuenta_insights.serie_diaria,"reach").map(v=>num(v.value)||0);
+  const igModel={
+    followers:num(pick(c,["followers_count","seguidores","followers"])),
+    followsNet:num(ti.follows_and_unfollows),
+    clicks:num(ti.website_clicks),
+    pviews:num(ti.profile_views),
+    viewsSum:posts.reduce((a,p)=>a+(p.views||0),0),
+    reachSum:posts.reduce((a,p)=>a+(p.reach||0),0),
+    reachDaily,viewsDaily,
+    gen:ig.generado||"sin fecha",
+    err:!!c.error,insErr:ig.cuenta_insights_errores||{}
+  };
+  const hasInsErr=Object.keys(igModel.insErr).length>0;
+  if(igModel.err){status.className="banner bad";status.textContent=`Cuenta API con error · ${igModel.gen}`;}
+  else if(hasInsErr){status.className="banner warn";status.textContent=`Cuenta OK, insights parciales · ${igModel.gen}`;}
+  else{status.className="banner ok";status.textContent=`OK · IG ${igModel.gen} · ${igPack.path}${ttPack.path?" · TT "+ttPack.path:""}${ovPack.path?" · Overview "+ovPack.path:""}`;}
+  document.getElementById("updated").textContent=`JSON de lectura. IG ${igModel.gen}. TT ${ttPack.path||"no cargó"} · Overview ${ovPack.path||"no cargó"}.`;
+  const tt=ttPack.data;
+  const ov=ovPack.data;
+  const dx=diagnose(igModel,posts,tt,ov,colaPack.data);
+  const ref=Date.parse(ig.generado)||Date.now();
+  renderHero(dx,posts,tt,ov);
+  renderKpis(igModel,posts,tt,ov);
+  renderFunnel(igModel,posts,ov);
+  renderCadence(posts,tt,colaPack.data,ref);
+  document.getElementById("igchart").innerHTML=spark(reachDaily.length?reachDaily:viewsDaily);
+  document.getElementById("igchartmeta").textContent=reachDaily.length?"Serie reach/day de la API.":"Sin serie reach; se muestra views/day si existe.";
+  const ovRows=(ov&&(ov.rows||ov.nonzero_days))||[];
+  document.getElementById("ttchart").innerHTML=spark(ovRows.map(d=>num(d.views)||0));
+  document.getElementById("ttchartmeta").textContent=ov?`${ov.source||"Overview"} · ${(ov.date_range||[]).join(" → ")} · import ${ov.imported_at||"—"}`:"Sin Overview.";
+  renderTop(posts,tt);
+  renderExec(dx,posts,igModel);
+  renderIGTable(posts);
+  renderTT(tt,ov);
+}
 function unlock(){
   const v=document.getElementById("pin").value.trim();
   if(v!==PANEL_PIN){document.getElementById("pinerr").style.display="block";return;}
@@ -211,7 +493,6 @@ function unlock(){
   document.getElementById("gatewrap").hidden=true;
   document.getElementById("app").hidden=false;
   load();
-  loadTikTok();
 }
 document.getElementById("pinbtn").onclick=unlock;
 document.getElementById("pin").addEventListener("keydown",e=>{if(e.key==="Enter")unlock();});
@@ -219,7 +500,6 @@ if(sessionStorage.getItem("hoymegusto_panel_ok")==="1"){
   document.getElementById("gatewrap").hidden=true;
   document.getElementById("app").hidden=false;
   load();
-  loadTikTok();
 }
 </script>
 </body>
