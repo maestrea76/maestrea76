@@ -5,6 +5,7 @@
 <title>Panel ejecutivo · Hoy me gusto</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
+<script>if(sessionStorage.getItem("hoymegusto_panel_ok")==="1")document.documentElement.classList.add("in");</script>
 <style>
 :root{
   --bg:#F4F0F2;--card:#fff;--ink:#17141A;--soft:#5E5862;--mute:#8A838C;
@@ -24,6 +25,8 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "Segoe UI",system-ui,-apple-system,sans-serif}
+html.in #gatewrap{display:none!important}
+html.in #app{display:flex!important}
 h1,h2,h3{margin:0;letter-spacing:-.03em}
 button,input{font:inherit}
 a{color:var(--ac)}
@@ -278,10 +281,11 @@ function diagnose(ig,posts,tt,ov,cola){
     items.push({sev:"bad",t:"El algoritmo no empuja en Instagram",d:`${low} de ${posts.length} piezas bajo 50 views. No toques el producto: cambia el gancho (texto en pantalla, sin intro).`});
     pills.push(["Distribución IG","bad"]);
   }else{pills.push(["Distribución IG",posts.length?"warn":"ns"]);}
-  if(views>=200&&shares+saves<5){
-    items.push({sev:"warn",t:"No hay bucle viral",d:`${fmt(saves)} guardados y ${fmt(shares)} compartidos en el JSON. En belleza manda el save; se comparte la pega, no el elogio.`});
+  const saveAcc=pct(saves,views);
+  if(saveAcc!==null&&saveAcc<0.004){
+    items.push({sev:"warn",t:"No hay bucle viral",d:`${fmt(saves)} guardados y ${fmt(shares)} compartidos (${pctLabel(saveAcc,2)} save). En belleza manda el save; se comparte la pega, no el elogio.`});
     pills.push(["Viral","bad"]);
-  }else{pills.push(["Viral",shares+saves>=5?"ok":"warn"]);}
+  }else{pills.push(["Viral",saveAcc!==null&&saveAcc>=0.01?"ok":"warn"]);}
   const nucleo=(tt&&tt.videos||[]).filter(v=>v.etiqueta==="nucleo");
   const promos=(tt&&tt.videos||[]).filter(v=>v.etiqueta==="promo"||v.promo);
   if(promos.length&&nucleo.length){
@@ -299,7 +303,6 @@ function renderHero(dx,posts,tt,ov){
   const bestShare=posts.slice().sort((a,b)=>(b.shares||0)-(a.shares||0))[0];
   if(bestShare&&bestShare.shares>0)actions.push({k:"02 · Formato",t:`Repite el gancho de «${bestShare.title}» (${bestShare.shares} shares). La pega va en el segundo 1–3.`});
   else actions.push({k:"02 · Gancho",t:"Tarjeta de primer segundo con la pega, no con la marca. Watch < 5 s = el vídeo no existe para el algoritmo."});
-  const ttN=(tt&&tt.videos||[]).length;
   actions.push({k:"03 · Cadencia TT",t:"Objetivo ~2/día. El núcleo orgánico es la referencia; promo y outlier se etiquetan aparte."});
   document.getElementById("hero").innerHTML=`
     <p class="eye">Diagnóstico</p>
@@ -490,6 +493,7 @@ function unlock(){
   const v=document.getElementById("pin").value.trim();
   if(v!==PANEL_PIN){document.getElementById("pinerr").style.display="block";return;}
   sessionStorage.setItem("hoymegusto_panel_ok","1");
+  document.documentElement.classList.add("in");
   document.getElementById("gatewrap").hidden=true;
   document.getElementById("app").hidden=false;
   load();
