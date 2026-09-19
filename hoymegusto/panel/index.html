@@ -173,6 +173,7 @@ footer{color:var(--mute);font-size:.78rem}
   <footer>
     Umbrales fijos (belleza, cuenta temprana): save ≥1% · share ≥0,5% · views→perfil TT ≥1% · clics ≥0,3%.
     Muestra &lt;50 views → n/s. Números de la API / CSV, no de la parrilla del perfil.
+    Briefing semanal: Action martes 09:00 Madrid → datos/diagnostico_semanal.json. Revisión del jefe: martes 10:00 Madrid.
     El panel no llama a Graph ni guarda secretos.
   </footer>
 </div>
@@ -185,10 +186,11 @@ const SERIE_PATH="datos/serie_cuenta.json";
 const TT_JSON_PATHS=["datos/tiktok.json","datos/tiktok/tiktok.json","datos/tiktok/tiktok_content_latest.json"];
 const TT_OVERVIEW_PATHS=["datos/tiktok/tiktok_overview_latest.json"];
 const COLA_PATHS=["datos/cola.json"];
+const DX_PATH="datos/diagnostico_semanal.json";
 const TT_PROFILE_META=0.01;
 const MIN_N=50;
 let igFilter="all";
-let cache={ig:null,tt:null,ov:null,cola:null,serie:null,src:{}};
+let cache={ig:null,tt:null,ov:null,cola:null,serie:null,dx:null,src:{}};
 
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function num(v){return (v===0||v)?Number(v):null}
@@ -316,19 +318,33 @@ function diagnose(ig,posts,tt,ov,cola){
   return {items,pills,headline:worst.t,lead:worst.d,sev:worst.sev};
 }
 function kpiHTML(label,value,note,hot){return `<div class="kpi${hot?" hot":""}"><span>${esc(label)}</span><b class="num">${value}</b>${note?`<em>${note}</em>`:""}</div>`}
-function renderHero(dx,posts,tt,ov){
-  const actions=[];
-  actions.push({k:"01 · Clics",t:"Cada Reel/carrusel sale con Story de enlace. Sin eso, website_clicks se queda en 0."});
-  const bestShare=posts.slice().sort((a,b)=>(b.shares||0)-(a.shares||0))[0];
-  if(bestShare&&bestShare.shares>0)actions.push({k:"02 · Formato",t:`Repite el gancho de «${bestShare.title}» (${bestShare.shares} shares). La pega va en el segundo 1–3.`});
-  else actions.push({k:"02 · Gancho",t:"Tarjeta de primer segundo con la pega, no con la marca. Watch < 5 s = el vídeo no existe para el algoritmo."});
-  actions.push({k:"03 · Cadencia TT",t:"Objetivo ~2/día. El núcleo orgánico es la referencia; promo y outlier se etiquetan aparte."});
+function briefingOk(weekly){
+  if(!weekly||!weekly.generado)return false;
+  const t=Date.parse(weekly.generado);
+  return !Number.isNaN(t)&&(Date.now()-t)<=8*86400000;
+}
+function renderHero(dx,posts,tt,ov,weekly){
+  const frozen=briefingOk(weekly)?weekly:null;
+  const headline=frozen?frozen.headline:dx.headline;
+  const lead=frozen?frozen.lead:dx.lead;
+  const pills=frozen?frozen.pills:dx.pills;
+  let actions=frozen&&frozen.acciones?frozen.acciones:[];
+  if(!actions.length){
+    actions=[{k:"01 · Clics",t:"Cada Reel/carrusel sale con Story de enlace. Sin eso, website_clicks se queda en 0."}];
+    const bestShare=posts.slice().sort((a,b)=>(b.shares||0)-(a.shares||0))[0];
+    if(bestShare&&bestShare.shares>0)actions.push({k:"02 · Formato",t:`Repite el gancho de «${bestShare.title}» (${bestShare.shares} shares). La pega va en el segundo 1–3.`});
+    else actions.push({k:"02 · Gancho",t:"Tarjeta de primer segundo con la pega, no con la marca. Watch < 5 s = el vídeo no existe para el algoritmo."});
+    actions.push({k:"03 · Cadencia TT",t:"Objetivo ~2/día. El núcleo orgánico es la referencia; promo y outlier se etiquetan aparte."});
+  }
+  const prox=frozen&&frozen.revision&&frozen.revision.proxima;
+  const eye=frozen?`Briefing ${esc(frozen.semana||"")} · para el martes 10:00 Madrid`:"Diagnóstico en vivo (el briefing semanal falta o tiene más de 8 días)";
   document.getElementById("hero").innerHTML=`
-    <p class="eye">Diagnóstico</p>
-    <h2>${esc(dx.headline)}</h2>
-    <p class="sub" style="margin:.45rem 0 0;max-width:46rem">${esc(dx.lead)}</p>
-    <div class="pills">${dx.pills.map(([n,c])=>`<span class="pill ${c}">${esc(n)}</span>`).join("")}</div>
-    <div class="actions">${actions.map(a=>`<div class="action"><b>${esc(a.k)}</b>${esc(a.t)}</div>`).join("")}</div>`;
+    <p class="eye">${eye}</p>
+    <h2>${esc(headline)}</h2>
+    <p class="sub" style="margin:.45rem 0 0;max-width:46rem">${esc(lead)}</p>
+    <div class="pills">${(pills||[]).map(([n,c])=>`<span class="pill ${c}">${esc(n)}</span>`).join("")}</div>
+    <div class="actions">${actions.map(a=>`<div class="action"><b>${esc(a.k)}</b>${esc(a.t)}</div>`).join("")}</div>
+    <p class="meta" style="margin:.75rem 0 0">${frozen?`Congelado ${esc((frozen.generado||"").slice(0,16).replace("T"," "))} · próxima revisión ${prox?esc(prox.replace("T"," ").slice(0,16)): "martes 10:00 Madrid"}.`:"El Action de los martes 09:00 Madrid escribe datos/diagnostico_semanal.json."}</p>`;
 }
 function renderKpis(ig,posts,tt,ov,serie){
   const fol=ig.followers;
@@ -417,8 +433,9 @@ function renderTop(posts,tt){
   }).join("");
   document.getElementById("top").innerHTML=block("IG ",ig,"ig")+block("TT ",ttV,"tt")||`<p class="meta">Sin piezas.</p>`;
 }
-function renderExec(dx,posts,ig){
-  const extra=dx.items.map(x=>`<li><b>${esc(x.t)}.</b> ${esc(x.d)}</li>`);
+function renderExec(dx,posts,ig,weekly){
+  const src=briefingOk(weekly)&&weekly.problemas?weekly.problemas:dx.items;
+  const extra=(src||[]).map(x=>`<li><b>${esc(x.t)}.</b> ${esc(x.d)}</li>`);
   const best=posts.slice().sort((a,b)=>(b.views||0)-(a.views||0))[0];
   if(best)extra.push(`<li><b>Mejor Reel API:</b> ${esc(best.title)} (${fmt(best.views)} views, watch ${best.avg!==null?String(best.avg).replace(".",",")+"s":"—"}).</li>`);
   extra.push(`<li>Manda la API, no la parrilla. website_clicks es el único KPI de dinero hoy (${fmt(ig.clicks)}).</li>`);
@@ -484,7 +501,8 @@ async function load(){
   const ttPack=await firstJSON(TT_JSON_PATHS);
   const ovPack=await firstJSON(TT_OVERVIEW_PATHS);
   const colaPack=await firstJSON(COLA_PATHS);
-  cache={ig:igPack.data,tt:ttPack.data,ov:ovPack.data,cola:colaPack.data,serie:seriePack.data,src:{ig:igPack.path,tt:ttPack.path,ov:ovPack.path,cola:colaPack.path,serie:seriePack.path}};
+  const dxPack=await firstJSON([DX_PATH]);
+  cache={ig:igPack.data,tt:ttPack.data,ov:ovPack.data,cola:colaPack.data,serie:seriePack.data,dx:dxPack.data,src:{ig:igPack.path,tt:ttPack.path,ov:ovPack.path,cola:colaPack.path,serie:seriePack.path,dx:dxPack.path}};
   if(!igPack.data){status.className="banner bad";status.textContent="No pude cargar datos/estadisticas.json.";return;}
   const ig=igPack.data;
   const c=ig.cuenta||{};
@@ -509,13 +527,13 @@ async function load(){
   if(igModel.err){status.className="banner bad";status.textContent=`Cuenta API con error · ${igModel.gen}`;}
   else if(hasInsErr||viewsDayErr){status.className="banner warn";status.textContent=`OK parcial · IG ${igModel.gen}${viewsDayErr?" · views/day no viene de Meta":""}`;}
   else{status.className="banner ok";status.textContent=`OK · IG ${igModel.gen} · ${igPack.path}${ttPack.path?" · TT "+ttPack.path:""}${seriePack.path?" · serie "+seriePack.path:""}`;}
-  document.getElementById("updated").textContent=`JSON de lectura. IG ${igModel.gen}. TT ${ttPack.path||"no cargó"} (${(ttPack.data&&ttPack.data.generado)||"sin generado"}). Serie ${seriePack.path||"no"}. Cola ${colaPack.path||"no"}.`;
+  document.getElementById("updated").textContent=`JSON de lectura. IG ${igModel.gen}. TT ${ttPack.path||"no cargó"} (${(ttPack.data&&ttPack.data.generado)||"sin generado"}). Serie ${seriePack.path||"no"}. Cola ${colaPack.path||"no"}. Briefing ${dxPack.path||"no"}.`;
   const tt=ttPack.data;
   const ov=ovPack.data;
   const dx=diagnose(igModel,posts,tt,ov,colaPack.data);
   const igRef=Date.parse(ig.generado)||Date.now();
   const ttRef=Date.parse(tt&&tt.generado)||igRef;
-  renderHero(dx,posts,tt,ov);
+  renderHero(dx,posts,tt,ov,dxPack.data);
   renderKpis(igModel,posts,tt,ov,seriePack.data);
   renderFunnel(igModel,posts,ov);
   renderCadence(posts,tt,colaPack.data,igRef,ttRef);
@@ -526,7 +544,7 @@ async function load(){
   document.getElementById("ttchart").innerHTML=spark(ovRows.map(d=>num(d.views)||0));
   document.getElementById("ttchartmeta").textContent=ov?`${ov.source||"Overview"} · ${(ov.date_range||[]).join(" → ")} · import ${ov.imported_at||"—"}`:"Sin Overview.";
   renderTop(posts,tt);
-  renderExec(dx,posts,igModel);
+  renderExec(dx,posts,igModel,dxPack.data);
   renderIGTable(posts);
   renderTT(tt,ov);
 }
