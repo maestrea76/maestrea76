@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TikTok callback</title>
+  <style>
+    body { font-family: sans-serif; max-width: 720px; margin: 40px auto; padding: 0 16px; color: #222; }
+    code, textarea { font-family: ui-monospace, monospace; }
+    textarea { width: 100%; min-height: 120px; }
+    .err { color: #9b1c1c; }
+  </style>
+</head>
+<body>
+  <h1>TikTok callback</h1>
+  <p id="status">Leyendo la respuesta de TikTok…</p>
+  <p><label for="code">code</label></p>
+  <textarea id="code" readonly></textarea>
+  <p><button type="button" id="copy">Copiar code</button></p>
+  <script>
+    var params = new URLSearchParams(location.search);
+    var code = params.get("code") || "";
+    var error = params.get("error") || "";
+    var status = document.getElementById("status");
+    var box = document.getElementById("code");
+    if (error) {
+      status.textContent = "TikTok devolvió un error: " + error;
+      status.className = "err";
+      box.value = params.get("error_description") || error;
+    } else if (code) {
+      status.textContent = "Autorización recibida. Copia el code y cámbialo por el token enseguida: caduca en minutos.";
+      box.value = code;
+    } else {
+      status.textContent = "Página de retorno lista. Aquí aparecerá el code cuando TikTok redirija tras autorizar.";
+    }
+    document.getElementById("copy").addEventListener("click", function () {
+      box.select();
+      navigator.clipboard.writeText(box.value);
+    });
+  </script>
+</body>
+</html>
