@@ -1,22 +1,111 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Hoy me gusto</title><meta name="viewport" content="width=device-width,initial-scale=1"><style>
-:root{--bg:#FAF7F8;--card:#fff;--ink:#1B1A1F;--soft:#5A555F;--line:#E6DFE2;--ac:#8E2C4E;--acink:#fff;--pb:#F1F3EC;--pl:#6B7A58;--pi:#3E4A31}
-@media(prefers-color-scheme:dark){:root{--bg:#151318;--card:#1E1B21;--ink:#F4F0F2;--soft:#A9A1AB;--line:#332E38;--ac:#E4739A;--acink:#1B1A1F;--pb:#20241C;--pl:#8CA06F;--pi:#CDD9BC}}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
-.w{max-width:34rem;margin:0 auto;padding:2.5rem 1.25rem 3.5rem;display:flex;flex-direction:column;gap:1.5rem}
-h1{font-size:clamp(1.9rem,8vw,2.5rem);line-height:1.05;letter-spacing:-.03em;margin:0}h1 span{color:var(--ac)}
-h2{font-size:1.2rem;line-height:1.25;margin:.15rem 0 0}h3{font-size:1rem;margin:1.4rem 0 .3rem}
-p{margin:0 0 .7rem}.sub{color:var(--soft)}
-hr{height:1px;background:var(--line);border:0;margin:.5rem 0}
-ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:1.1rem}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1.2rem;display:flex;flex-direction:column;gap:.8rem}
-.eye{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);margin:0}
-.meta{font-size:.85rem;color:var(--soft);margin:0}.meta b{color:var(--ink)}
-.bien{background:var(--pb);border-left:3px solid var(--pl);border-radius:0 8px 8px 0;padding:.7rem .85rem;color:var(--pi);font-size:.94rem}
-.bien b{display:block;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;margin-bottom:.2rem}
-a.cta{display:block;text-align:center;background:var(--ac);color:var(--acink);text-decoration:none;font-weight:700;padding:.85rem;border-radius:10px}
-a{color:var(--ac)}footer{color:var(--soft);font-size:.8rem;display:flex;flex-direction:column;gap:.5rem}
+<!doctype html><html lang="es" class="nojs"><head><meta charset="utf-8"><title>Hoy me gusto · @hoymegusto</title><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="La cosmética de @hoymegusto: piel, labios, maquillaje y pelo, contada por lo que más gusta a quien ya la usa."><meta name="theme-color" content="#FBF6F4"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%238E2C4E'/%3E%3Ctext x='32' y='44' font-family='Georgia,serif' font-size='34' text-anchor='middle' fill='%23fff'%3Eh%3C/text%3E%3C/svg%3E"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&amp;display=swap"><script>document.documentElement.className='js'</script><style>
+:root{--bg:#FBF6F4;--card:#fff;--ink:#211C20;--soft:#6E6469;--mute:#9A9095;--line:#EEE4E2;--ac:#8E2C4E;--ac2:#6F1F3B;--acink:#fff;--gold:#B7862F;--pb:#F4F5EF;--pl:#7D8C68;--pi:#3E4A31;--r:16px;--serif:"DM Serif Display",ui-serif,Georgia,serif;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color-scheme:light}
+*{box-sizing:border-box}[hidden]{display:none!important}html{-webkit-text-size-adjust:100%;scroll-padding-top:8.5rem}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--ac)}button{font:inherit;color:inherit}a,button,.pc{-webkit-tap-highlight-color:transparent}img{display:block;max-width:100%}
+.wrap{max-width:72rem;margin:0 auto;padding:0 1rem}
+/* cabecera */
+.top{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:1rem 0 .2rem}
+.logo{font:1.6rem/1 var(--serif);letter-spacing:-.01em;color:var(--ink);text-decoration:none;margin:0}.logo i{font-style:italic;color:var(--ac)}
+.handle{font-size:.78rem;font-weight:600;color:var(--ac);background:#F6E6EA;border-radius:99px;padding:.3rem .65rem;white-space:nowrap}
+.lede{margin:.15rem 0 .9rem;color:var(--soft);font-size:.92rem}
+.eyebrow{font-size:.68rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--soft);margin:0}
+/* tiles (foto o color por categoría) */
+.tile{position:relative;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;border-radius:12px;aspect-ratio:4/3;padding:.6rem;background:linear-gradient(150deg,var(--t1),var(--t2));color:var(--t3)}
+.tile .tb{font:1.15rem/1.1 var(--serif);letter-spacing:-.005em;max-width:100%;overflow-wrap:anywhere}
+.tile svg{position:absolute;left:.55rem;top:.55rem;width:20px;height:20px;opacity:.75}
+.tile img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff;padding:6%}
+.c-piel{--t1:#FAEDE6;--t2:#F1D3C6;--t3:#8A4B37}.c-labios{--t1:#FBE7EC;--t2:#EDBACA;--t3:#8E2C4E}.c-maquillaje{--t1:#F7EEE3;--t2:#E6CFB4;--t3:#7A5530}.c-pelo{--t1:#EFEBF7;--t2:#D5CBEA;--t3:#55427F}.c-cuerpo{--t1:#EDF3EA;--t2:#CFDEC8;--t3:#4C6340}.c-herramientas{--t1:#F1EFED;--t2:#DAD4CE;--t3:#5B524B}
+/* lo último */
+.hero{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:.75rem;display:grid;grid-template-columns:38% 1fr;gap:.85rem;box-shadow:0 6px 24px -14px rgba(80,30,50,.25)}
+.hero .tile{aspect-ratio:1/1;height:auto}.hero .tile .tb{font-size:1.45rem}
+.badge{position:absolute;right:.5rem;bottom:.5rem;background:rgba(255,255,255,.85);color:var(--ac);font:700 .62rem/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;padding:.35rem .5rem;border-radius:99px}
+.hero-info{display:flex;flex-direction:column;gap:.3rem;min-width:0}
+.hero h2{font:1.25rem/1.15 var(--serif);margin:.1rem 0 0;letter-spacing:-.005em}
+.hero .sub{font-size:.82rem;color:var(--soft);margin:0}
+.hero .likes{grid-column:1/-1;margin:0;font-size:.88rem;color:var(--pi);background:var(--pb);border-radius:10px;padding:.6rem .75rem}
+.hero .likes b{display:block;font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--pl);margin-bottom:.1rem}
+.hero .cta{grid-column:1/-1}
+.facts{display:flex;flex-wrap:wrap;align-items:center;gap:.25rem .55rem;font-size:.8rem;color:var(--soft);margin:0}
+.star{color:var(--ink);font-weight:700;white-space:nowrap}.star::before{content:"★ ";color:var(--gold)}.star small{font-weight:400;color:var(--mute);font-size:.72rem}
+.price{white-space:nowrap}.price b{color:var(--ink)}
+.cta{display:flex;align-items:center;justify-content:center;gap:.4rem;min-height:44px;background:var(--ac);color:var(--acink);text-decoration:none;font-weight:700;font-size:.92rem;padding:.6rem .8rem;border-radius:11px;transition:background .15s}
+.cta:hover,.cta:focus-visible{background:var(--ac2)}.cta::after{content:"→";font-weight:400}
+/* barra buscador + filtros */
+.bar{position:sticky;top:0;z-index:5;background:rgba(251,246,244,.92);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);margin:1rem -1rem 0;padding:.6rem 1rem .5rem;border-bottom:1px solid transparent}
+.bar.stuck{border-bottom-color:var(--line)}
+.search{position:relative}.search svg{position:absolute;left:.85rem;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--mute);pointer-events:none}
+.search input{width:100%;font:16px/1.2 var(--sans);color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.72rem 2.4rem .72rem 2.5rem;outline:none;-webkit-appearance:none;appearance:none}
+.search input:focus{border-color:#D9B3C0;box-shadow:0 0 0 3px #F3DFE5}
+.search input::-webkit-search-cancel-button{display:none}
+.ph{position:absolute;left:2.55rem;top:50%;transform:translateY(-50%);color:var(--mute);font-size:16px;pointer-events:none;white-space:nowrap}.search input:valid+.ph{display:none}
+.clear{position:absolute;right:.35rem;top:50%;transform:translateY(-50%);border:0;background:none;width:36px;height:36px;border-radius:50%;color:var(--mute);font-size:1.25rem;cursor:pointer}
+.chips{display:flex;gap:.4rem;overflow-x:auto;scrollbar-width:none;padding:.55rem 0 .1rem;margin:0 -1rem;padding-left:1rem;padding-right:1rem;-webkit-overflow-scrolling:touch}.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line);background:var(--card);border-radius:99px;padding:.42rem .8rem;font-size:.84rem;font-weight:600;color:var(--soft);cursor:pointer;white-space:nowrap}
+.chip span{font-weight:400;color:var(--mute);margin-left:.25rem;font-size:.76rem}
+.chip[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#fff}.chip[aria-pressed=true] span{color:#cfc5ca}
+.count{font-size:.8rem;color:var(--soft);margin:.7rem 0 .55rem}
+/* grid */
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.65rem;margin:0;padding:0;list-style:none}
+.pc{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:.45rem .45rem .5rem;display:flex;flex-direction:column;gap:.45rem;cursor:pointer;transition:box-shadow .15s,transform .15s}
+.pc:hover{box-shadow:0 8px 22px -14px rgba(80,30,50,.35)}
+.pc .tile{aspect-ratio:3/2}.pc .body{display:flex;flex-direction:column;gap:.2rem;padding:0 .15rem;flex:1}
+.pc h3{font-size:.86rem;line-height:1.25;font-weight:650;margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pc .type{font-size:.74rem;color:var(--soft);margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pc .facts{font-size:.76rem;margin-top:auto;padding-top:.15rem}
+.pc .more{border:0;background:none;padding:0 .15rem;font-size:.74rem;font-weight:600;color:var(--ac);text-align:left;cursor:pointer}
+.pc .cta{font-size:.84rem;min-height:40px;padding:.5rem .4rem;border-radius:10px}
+.pc.flash{animation:flash 1.6s ease}@keyframes flash{0%,40%{box-shadow:0 0 0 3px var(--ac)}100%{box-shadow:0 0 0 0 transparent}}
+.empty{text-align:center;color:var(--soft);padding:2rem 1rem}.empty button{margin-top:.6rem;border:1px solid var(--line);background:var(--card);border-radius:99px;padding:.5rem 1rem;font-weight:600;cursor:pointer}
+/* ficha desplegada */
+dialog{border:0;padding:0;background:transparent;max-width:none;max-height:none;width:100%;height:100%;margin:0;overflow:hidden}
+dialog::backdrop{background:rgba(33,28,32,.45)}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:92vh;overflow:auto;background:var(--card);border-radius:20px 20px 0 0;padding:.6rem 1rem calc(1rem + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:.7rem;animation:up .22s ease}
+@keyframes up{from{transform:translateY(30px);opacity:.4}}
+.grab{width:40px;height:4px;border-radius:9px;background:var(--line);margin:0 auto .1rem}
+.sheet .tile{aspect-ratio:auto;height:9.5rem}.sheet .tile .tb{font-size:1.7rem}
+.sheet h2{font:1.4rem/1.15 var(--serif);margin:0}.sheet .brand{margin-bottom:-.35rem}
+.sheet .likes{background:var(--pb);border-left:3px solid var(--pl);border-radius:0 10px 10px 0;padding:.75rem .9rem;color:var(--pi);font-size:.95rem;margin:0}
+.sheet .likes b{display:block;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--pl);margin-bottom:.15rem}
+.sheet .note{font-size:.74rem;color:var(--mute);margin:-.2rem 0 0;text-align:center}
+.x{position:absolute;right:.6rem;top:.6rem;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.9);font-size:1.3rem;line-height:1;cursor:pointer;color:var(--ink);z-index:2}
+.sheet-in{position:relative;display:flex;flex-direction:column;gap:.7rem}
+/* pie */
+footer{color:var(--soft);font-size:.78rem;border-top:1px solid var(--line);margin-top:2rem;padding:1.2rem 0 2.5rem}footer p{margin:0 0 .45rem}
+/* sin JS: la lista original se ve tal cual */
+.nojs .app{display:none}.js #fuente{display:none}
+#fuente ul{margin:0;padding:0;list-style:none;display:grid;gap:1rem}#fuente .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1.1rem;display:flex;flex-direction:column;gap:.6rem}#fuente h2{font-size:1.1rem;margin:0}#fuente p{margin:0}#fuente .eye{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--soft)}#fuente .meta{font-size:.85rem;color:var(--soft)}#fuente .bien{background:var(--pb);border-left:3px solid var(--pl);padding:.6rem .8rem;color:var(--pi);font-size:.92rem}#fuente .bien b{display:block;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase}
+@media(min-width:640px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.hero{grid-template-columns:15rem 1fr}}
+@media(min-width:900px){.wrap{padding:0 2rem}.bar{margin:1.2rem -2rem 0;padding:.75rem 2rem .6rem}.chips{margin:0 -2rem;padding-left:2rem;padding-right:2rem}
+.top{padding-top:1.6rem}.logo{font-size:2rem}.lede{font-size:1rem}
+.hero{grid-template-columns:17rem 1fr 1fr;align-items:center;padding:1rem;gap:1.4rem}.hero .likes{grid-column:3;grid-row:1;font-size:.95rem;padding:1rem}.hero .cta{grid-column:2}.hero h2{font-size:1.7rem}.hero .hero-info{grid-row:1}
+.hero{grid-template-areas:"t i l" "t c l"}.hero>.tile{grid-area:t}.hero>.hero-info{grid-area:i;align-self:end}.hero>.cta{grid-area:c;align-self:start}.hero>.likes{grid-area:l}
+.grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:.9rem}.pc{padding:.6rem .6rem .65rem}.pc h3{font-size:.92rem}
+.sheet{left:50%;top:50%;bottom:auto;right:auto;transform:translate(-50%,-50%);width:min(30rem,92vw);border-radius:20px;padding:1rem 1.2rem 1.2rem;animation:none}.grab{display:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
-</head><body><div class="w"><header><h1>Hoy me <span>gusto</span></h1><p class="sub" style="max-width:30ch">Cosmética que me gusta, contada por lo bueno: lo que destacan quienes ya la usan, sin inventar nada.</p></header><hr><section><p class="eye">Todo lo publicado</p><ul><li class="card"><p class="eye">celimax</p><h2>The Vita-A Retinal Shot Dual Cream</h2><p class="meta">★ <b>4,4</b> · crema de noche con retinal · menos de <b>28 €</b></p><div class="bien"><b>Lo que gusta</b>Deja la piel más tersa y cuidada desde la primera noche, y por la mañana se ve radiante. Gusta para cuidar los poros y suavizar el aspecto de las líneas de expresión.</div><a class="cta" href="https://www.amazon.es/dp/B0GS97T2MV">Ver el producto</a></li><li class="card"><p class="eye">Tosowoong</p><h2>Real Collagen Fit Peel-Off Mask</h2><p class="meta">★ <b>4,3</b> · mascarilla peel-off · menos de <b>28 €</b></p><div class="bien"><b>Lo que gusta</b>Deja la piel más hidratada y luminosa, con efecto buena cara y textura agradable que se absorbe bien.</div><a class="cta" href="https://www.amazon.es/dp/B0D6R5CF7T">Ver el producto</a></li><li class="card"><p class="eye">Wonderskin</p><h2>Lip Tint peel-off</h2><p class="meta">★ <b>3,9</b> · tinte de labios · menos de <b>26 €</b></p><div class="bien"><b>Lo que gusta</b>Color natural que dura horas, se aplica fácil, se seca enseguida y deja un acabado muy favorecedor.</div><a class="cta" href="https://www.amazon.es/dp/B0B9YHX8DX">Ver el producto</a></li><li class="card"><p class="eye">Dior</p><h2>Addict Max Lip Bar · 001</h2><p class="meta">★ <b>4,4</b> · labial · menos de <b>47 €</b></p><div class="bien"><b>Lo que gusta</b>Color natural que favorece, con brillo, dura mucho y huele muy bien.</div><a class="cta" href="https://www.amazon.es/dp/B0BSRYFNB3">Ver el producto</a></li>
+</head><body>
+<div class="wrap">
+<header class="top"><p class="logo">Hoy me <i>gusto</i></p><span class="handle">@hoymegusto</span></header>
+<p class="lede">Cosmética que me gusta, contada por lo bueno: lo que destacan quienes ya la usan.</p>
+<main class="app" aria-live="polite">
+<section id="lo-ultimo" aria-label="Lo último"><p class="eyebrow" style="margin-bottom:.45rem">Lo último</p><div id="hero"></div></section>
+<div class="bar" id="bar"><div class="search" role="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" required autocomplete="off" enterkeyhint="search" aria-label="Buscar producto"><span class="ph" aria-hidden="true">Busca marca o producto</span><button class="clear" id="clear" type="button" aria-label="Borrar búsqueda" hidden>×</button></div><div class="chips" id="chips" role="group" aria-label="Categorías"></div></div>
+<p class="count" id="count"></p>
+<div class="grid" id="grid"></div>
+<div class="empty" id="empty" hidden><p id="emptytxt"></p><button type="button" id="reset">Ver todo</button></div>
+</main>
+<!--
+  FICHAS (lista editable). Formato SIN CAMBIOS respecto a la versión anterior: cada ficha es un elemento li con class="card"
+  (marca en p.eye, nombre en h2, valoración/tipo/«menos de <b>NN €</b>» en p.meta, «Lo que gusta» en div.bien y enlace
+  https://www.amazon.es/dp/ASIN con texto «Ver el producto» en a.cta). Cada publicación nueva se añade como PRIMERA ficha de la
+  lista, justo detrás de «Todo lo publicado»; la primera es la que sale destacada en «Lo último». Una ficha por línea.
+  Opcionales en el li: data-cat="piel|labios|maquillaje|pelo|cuerpo|herramientas" para forzar la categoría (si no, se deduce
+  del tipo y del nombre) y data-img="/hoymegusto/img/archivo.jpg" para mostrar foto del producto.
+  Enlace directo a una ficha: /hoymegusto/#ASIN (p. ej. #B0GS97T2MV) o #marca-nombre (se genera solo).
+  El diseño (destacado, buscador, filtros, tarjetas y ficha desplegada) lo monta el script del final leyendo esta lista.
+-->
+<div id="fuente">
+<section><p class="eye">Todo lo publicado</p><ul><li class="card"><p class="eye">celimax</p><h2>The Vita-A Retinal Shot Dual Cream</h2><p class="meta">★ <b>4,4</b> · crema de noche con retinal · menos de <b>28 €</b></p><div class="bien"><b>Lo que gusta</b>Deja la piel más tersa y cuidada desde la primera noche, y por la mañana se ve radiante. Gusta para cuidar los poros y suavizar el aspecto de las líneas de expresión.</div><a class="cta" href="https://www.amazon.es/dp/B0GS97T2MV">Ver el producto</a></li><li class="card"><p class="eye">Tosowoong</p><h2>Real Collagen Fit Peel-Off Mask</h2><p class="meta">★ <b>4,3</b> · mascarilla peel-off · menos de <b>28 €</b></p><div class="bien"><b>Lo que gusta</b>Deja la piel más hidratada y luminosa, con efecto buena cara y textura agradable que se absorbe bien.</div><a class="cta" href="https://www.amazon.es/dp/B0D6R5CF7T">Ver el producto</a></li><li class="card"><p class="eye">Wonderskin</p><h2>Lip Tint peel-off</h2><p class="meta">★ <b>3,9</b> · tinte de labios · menos de <b>26 €</b></p><div class="bien"><b>Lo que gusta</b>Color natural que dura horas, se aplica fácil, se seca enseguida y deja un acabado muy favorecedor.</div><a class="cta" href="https://www.amazon.es/dp/B0B9YHX8DX">Ver el producto</a></li><li class="card"><p class="eye">Dior</p><h2>Addict Max Lip Bar · 001</h2><p class="meta">★ <b>4,4</b> · labial · menos de <b>47 €</b></p><div class="bien"><b>Lo que gusta</b>Color natural que favorece, con brillo, dura mucho y huele muy bien.</div><a class="cta" href="https://www.amazon.es/dp/B0BSRYFNB3">Ver el producto</a></li>
 <li class="card"><p class="eye">Estée Lauder</p><h2>Double Wear Stay-In-Place Makeup</h2><p class="meta">★ <b>4,6</b> · base de maquillaje · menos de <b>72 €</b></p><div class="bien"><b>Lo que gusta</b>De larga duración, no deja brillos y da una cobertura muy buena con acabado uniforme. Con muy poquito cubre toda la cara.</div><a class="cta" href="https://www.amazon.es/dp/B000WIGSKQ">Ver el producto</a></li>
 <li class="card"><p class="eye">Lancôme</p><h2>Teint Idôle Ultra Wear All Over Concealer</h2><p class="meta">★ <b>4,6</b> · corrector y base · menos de <b>32 €</b></p><div class="bien"><b>Lo que gusta</b>Cubre muchísimo sin cuartearse, se difumina sin rayas, dura y huele bien.</div><a class="cta" href="https://www.amazon.es/dp/B06VW6N8XZ">Ver el producto</a></li>
 <li class="card"><p class="eye">LANEIGE</p><h2>Sleeping Lip Mask · Vanilla</h2><p class="meta">★ <b>4,6</b> · mascarilla de labios · menos de <b>30 €</b></p><div class="bien"><b>Lo que gusta</b>Muy valorada para cuidar los labios, y merece lo que cuesta.</div><a class="cta" href="https://www.amazon.es/dp/B072BHZ41J">Ver el producto</a></li>
@@ -56,7 +145,133 @@ a{color:var(--ac)}footer{color:var(--soft);font-size:.8rem;display:flex;flex-dir
 <li class="card"><p class="eye">Real Techniques</p><h2>Everyday Essentials · Kit de 5 piezas</h2><p class="meta">★ <b>4,7</b> · <b>55.003</b> valoraciones · menos de <b>14 €</b></p><div class="bien"><b>Lo que gusta</b>Brochas de muy buena calidad, con pelo suave y una dureza equilibrada: se trabaja muy bien con ellas y dan buen resultado.</div><a class="cta" href="https://www.amazon.es/dp/B07FTXBNVL">Ver el producto</a></li>
 <li class="card"><p class="eye">BIODANCE</p><h2>Bio-Collagen Real Deep Mask · Mascarilla de noche, 4 uds</h2><p class="meta">★ <b>4,5</b> · <b>43.553</b> valoraciones · menos de <b>11 €</b></p><div class="bien"><b>Lo que gusta</b>Súper hidratante: deja la piel hidratada y con muchísimo glow.</div><a class="cta" href="https://www.amazon.es/dp/B0B2RM68G2">Ver el producto</a></li>
 <li class="card"><p class="eye">The Ordinary</p><h2>Glycolic Acid 7% · Tónico exfoliante, 240 ml</h2><p class="meta">★ <b>4,7</b> · <b>59.572</b> valoraciones · menos de <b>13 €</b></p><div class="bien"><b>Lo que gusta</b>Buenos resultados por muy poco dinero: la piel queda mucho más lisa y suave, y el rostro con un brillo bonito.</div><a class="cta" href="https://www.amazon.es/dp/B071914GGL">Ver el producto</a></li>
-<li class="card"><p class="eye">Maybelline New York</p><h2>Instant Anti-Age Borrador · Corrector de ojeras, tono 01</h2><p class="meta">★ <b>4,5</b> · <b>20.600</b> valoraciones · menos de <b>10 €</b></p><div class="bien"><b>Lo que gusta</b>Cubre muy bien las ojeras, es fácil de usar y merece muchísimo la pena por lo que cuesta.</div><a class="cta" href="https://www.amazon.es/dp/B00KLXFUW4">Ver el producto</a></li></ul></section><footer><hr><p>Los vídeos se graban con un avatar de IA. La voz y el criterio son de verdad.</p>
+<li class="card"><p class="eye">Maybelline New York</p><h2>Instant Anti-Age Borrador · Corrector de ojeras, tono 01</h2><p class="meta">★ <b>4,5</b> · <b>20.600</b> valoraciones · menos de <b>10 €</b></p><div class="bien"><b>Lo que gusta</b>Cubre muy bien las ojeras, es fácil de usar y merece muchísimo la pena por lo que cuesta.</div><a class="cta" href="https://www.amazon.es/dp/B00KLXFUW4">Ver el producto</a></li></ul></section>
+</div>
+<footer><p>Los vídeos se graban con un avatar de IA. La voz y el criterio son de verdad.</p>
 <p>Los precios cambian a diario: los de aquí son orientativos, manda el de la ficha del producto.</p>
 <p>Estos enlaces no son de afiliado y no me llevo comisión. Cuando eso cambie, lo pondré aquí en grande.</p>
-<p><a href="/privacidad/">Privacidad</a> · <a href="/condiciones/">Condiciones</a> · <a href="/">maestre76.com</a></p><p><a href="/hoymegusto/panel/">Panel ejecutivo</a></p></footer></div></body></html>
+<p><a href="/privacidad/">Privacidad</a> · <a href="/condiciones/">Condiciones</a> · <a href="/">maestre76.com</a></p><p><a href="/hoymegusto/panel/">Panel ejecutivo</a></p></footer>
+</div>
+<dialog id="dlg" aria-label="Ficha del producto"><div class="sheet" id="sheet"></div></dialog>
+<script>
+(function(){
+var CATS=[['piel','Piel'],['labios','Labios'],['maquillaje','Maquillaje'],['pelo','Pelo'],['cuerpo','Cuerpo'],['herramientas','Herramientas']];
+var LABEL={};CATS.forEach(function(c){LABEL[c[0]]=c[1]});
+var RULES=[['herramientas',/brocha|boquilla|accesorio|airwrap|rizador de pesta|pinza de depil|esponja/],
+['labios',/labi|\blip|gloss/],
+['pelo',/pelo|cabell|puntas|frizz|cuero cabelludo|sin aclarado|champ|acondicionador|anti-chute|keratin/],
+['cuerpo',/corporal|\bbody\b|reafirmante|anticelul/],
+['maquillaje',/maquillaje|corrector|concealer|foundation|bb cream|cc cream|m[aá]scara\b|m[aá]scara |mascara|fijador|polvo|colorete|sombra|eyeliner|delineador|contorno de ojos con color|iluminador/],
+['piel',/crema|cream|s[eé]rum|serum|mascarilla|mask|hidratante|limpiador|exfoliante|t[oó]nico|esencia|essence|solar|\bsun\b|spf|retinal|retinol|antiedad|discos|pad|centella|contorno/]];
+var ICON={piel:'<path d="M12 3c3 4 6 7.4 6 11a6 6 0 0 1-12 0c0-3.6 3-7 6-11z"/>',labios:'<path d="M9 21h6v-7H9zM10 14V7l4-3v10"/>',maquillaje:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="4"/>',pelo:'<path d="M5 20c0-6 2-12 7-16M10 20c0-5 1.5-9.5 5-13M15 20c0-4 1-7 4-10"/>',cuerpo:'<path d="M9 9h6v11a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1zM10.5 4h3v5h-3z"/>',herramientas:'<path d="M14 3l7 7-5 5-7-7zM9 8l-5.5 5.5a2 2 0 0 0 0 3l4 4a2 2 0 0 0 3 0L16 15"/>'};
+function norm(s){return (s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()}
+function slug(s){return norm(s).replace(/&/g,' ').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60)}
+function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+function txt(n){return n?n.textContent.replace(/\s+/g,' ').trim():''}
+
+/* 1. Leer las fichas de la lista */
+var items=[],seen={},used={};
+Array.prototype.forEach.call(document.querySelectorAll('#fuente li.card'),function(li){
+  var a=li.querySelector('a.cta');if(!a)return;var href=a.getAttribute('href');
+  var m=href.match(/\/dp\/([A-Z0-9]{10})/i);var asin=m?m[1].toUpperCase():'';
+  if(asin&&seen[asin])return;if(asin)seen[asin]=1;
+  var brand=txt(li.querySelector('.eye')),name=txt(li.querySelector('h2'));
+  var parts=name.split(' · '),title=parts[0],variant=parts.slice(1).join(' · ');
+  var meta=li.querySelector('.meta'),rating='',votes='',price='',type='';
+  if(meta){var bs=meta.querySelectorAll('b');
+    meta.innerHTML.replace(/<\/?b>/g,'').replace(/^\s*★\s*/,'').split(' · ').forEach(function(seg){
+      seg=seg.replace(/<[^>]+>/g,'').trim();var mm;
+      if(/^\d+([,.]\d)?$/.test(seg))rating=seg;
+      else if(mm=seg.match(/^([\d.]+)\s+valoraciones$/))votes=mm[1];
+      else if(mm=seg.match(/^menos de\s+(.+)$/))price=mm[1];
+      else if(seg)type=type?type+' · '+seg:seg;});}
+  var bien=li.querySelector('.bien'),likes='';
+  if(bien){var c=bien.cloneNode(true),b=c.querySelector('b');if(b)b.remove();likes=txt(c)}
+  var cat=li.getAttribute('data-cat');
+  if(!LABEL[cat]){cat='';var hay=norm(type+' '+name);
+    for(var i=0;i<RULES.length&&!cat;i++)if(RULES[i][1].test(hay))cat=RULES[i][0];
+    if(!cat){var hb=norm(likes);for(i=0;i<RULES.length&&!cat;i++)if(RULES[i][1].test(hb))cat=RULES[i][0]}
+    if(!cat)cat='piel';}
+  var id=slug(brand+' '+title)||asin.toLowerCase();while(used[id])id+='-2';used[id]=1;
+  items.push({brand:brand,name:name,title:title,variant:variant,rating:rating,votes:votes,price:price,type:type,likes:likes,href:href,asin:asin,cat:cat,id:id,img:li.getAttribute('data-img')||'',
+    hay:norm([brand,name,type,likes,LABEL[cat]].join(' '))});
+});
+if(!items.length){document.documentElement.className='nojs';return}
+
+/* 2. Piezas de la interfaz */
+function tile(it,big){var t=el('div','tile c-'+it.cat);
+  t.insertAdjacentHTML('beforeend','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+ICON[it.cat]+'</svg>');
+  t.appendChild(el('span','tb',it.brand));
+  if(it.img){var im=el('img');im.src=it.img;im.alt=it.brand+' '+it.title;im.loading='lazy';im.decoding='async';im.onerror=function(){im.remove()};t.appendChild(im)}
+  return t}
+function facts(it,full){var f=el('p','facts');
+  if(it.rating){var s=el('span','star',it.rating);if(full&&it.votes){s.appendChild(el('small',null,' · '+it.votes+' valoraciones'))}f.appendChild(s)}
+  if(it.price){var p=el('span','price','menos de ');p.appendChild(el('b',null,it.price));f.appendChild(p)}
+  return f}
+function cta(it){var a=el('a','cta','Ver el producto');a.href=it.href;a.rel='nofollow noopener';a.setAttribute('data-asin',it.asin);return a}
+function likesBox(it,cls){var p=el('p',cls||'likes');p.appendChild(el('b',null,'Lo que gusta'));p.appendChild(document.createTextNode(it.likes));return p}
+
+/* Lo último */
+var first=items[0],hero=document.getElementById('hero'),h=el('article','hero');h.id=first.id;
+var ht=tile(first,1);ht.appendChild(el('span','badge','Nuevo'));h.appendChild(ht);
+var hi=el('div','hero-info');hi.appendChild(el('p','eyebrow',first.brand));hi.appendChild(el('h2',null,first.title));
+if(first.variant||first.type)hi.appendChild(el('p','sub',first.variant||first.type));hi.appendChild(facts(first,1));h.appendChild(hi);
+if(first.likes)h.appendChild(likesBox(first));h.appendChild(cta(first));hero.appendChild(h);
+
+/* Tarjetas */
+var grid=document.getElementById('grid');
+items.forEach(function(it,i){var c=el('article','pc');c.setAttribute('data-cat',it.cat);if(i)c.id=it.id;
+  c.appendChild(tile(it));var b=el('div','body');b.appendChild(el('h3',null,it.title));
+  b.appendChild(el('p','type',it.type||it.variant||LABEL[it.cat]));b.appendChild(facts(it));c.appendChild(b);
+  var mo=el('button','more','Lo que gusta ›');mo.type='button';c.appendChild(mo);c.appendChild(cta(it));
+  c.addEventListener('click',function(e){if(e.target.closest('a'))return;openSheet(it)});
+  it.node=c;grid.appendChild(c)});
+
+/* Filtros */
+var state={cat:'',q:''},chips=document.getElementById('chips'),counts={};
+items.forEach(function(it){counts[it.cat]=(counts[it.cat]||0)+1});
+function chip(key,label,n){var b=el('button','chip',label);b.type='button';b.appendChild(el('span',null,n));b.setAttribute('aria-pressed',state.cat===key?'true':'false');b.setAttribute('data-k',key);chips.appendChild(b)}
+chip('','Todo',items.length);CATS.forEach(function(c){if(counts[c[0]])chip(c[0],c[1],counts[c[0]])});
+var q=document.getElementById('q'),clr=document.getElementById('clear'),count=document.getElementById('count'),empty=document.getElementById('empty'),bar=document.getElementById('bar');
+function render(){var words=norm(state.q).split(/\s+/).filter(Boolean),n=0,def=!state.cat&&!words.length;
+  items.forEach(function(it,i){var ok=(!state.cat||it.cat===state.cat)&&words.every(function(w){return it.hay.indexOf(w)>-1});
+    var show=ok&&!(def&&i===0);it.node.hidden=!show;if(ok)n++});
+  Array.prototype.forEach.call(chips.children,function(b){b.setAttribute('aria-pressed',b.getAttribute('data-k')===state.cat?'true':'false')});
+  clr.hidden=!state.q;
+  count.textContent=def?'Todo lo publicado · '+items.length+' productos':n+(n===1?' producto':' productos')+(state.cat?' en '+LABEL[state.cat]:'')+(words.length?' para «'+state.q.trim()+'»':'');
+  empty.hidden=n>0;document.getElementById('emptytxt').textContent='No encuentro nada'+(words.length?' con «'+state.q.trim()+'»':'')+(state.cat?' en '+LABEL[state.cat]:'')+'.';}
+function toBar(){var r=bar.getBoundingClientRect();if(r.top>1)window.scrollTo({top:window.scrollY+r.top,behavior:'smooth'})}
+chips.addEventListener('click',function(e){var b=e.target.closest('.chip');if(!b)return;state.cat=b.getAttribute('data-k');render();toBar();
+  b.scrollIntoView({inline:'nearest',block:'nearest'})});
+q.addEventListener('input',function(){state.q=q.value;render()});
+q.addEventListener('focus',function(){if(window.innerWidth<900)setTimeout(toBar,250)});
+q.addEventListener('keydown',function(e){if(e.key==='Enter')q.blur()});
+clr.addEventListener('click',function(){q.value='';state.q='';render();q.focus()});
+document.getElementById('reset').addEventListener('click',function(){q.value='';state.q='';state.cat='';render()});
+if('IntersectionObserver' in window){var sen=el('div');sen.style.height='1px';bar.parentNode.insertBefore(sen,bar);
+  new IntersectionObserver(function(en){bar.classList.toggle('stuck',!en[0].isIntersecting)}).observe(sen)}
+render();
+
+/* Ficha desplegada */
+var dlg=document.getElementById('dlg'),sheet=document.getElementById('sheet'),lastFocus=null;
+function openSheet(it){lastFocus=document.activeElement;sheet.innerHTML='';sheet.appendChild(el('div','grab'));
+  var x=el('button','x','×');x.type='button';x.setAttribute('aria-label','Cerrar');x.onclick=closeSheet;sheet.appendChild(x);
+  sheet.appendChild(tile(it,1));sheet.appendChild(el('p','eyebrow brand',it.brand));sheet.appendChild(el('h2',null,it.name));
+  if(it.type)sheet.appendChild(el('p','facts',it.type));sheet.appendChild(facts(it,1));
+  if(it.likes)sheet.appendChild(likesBox(it));sheet.appendChild(cta(it));
+  sheet.appendChild(el('p','note','Precio orientativo: manda el de la ficha del producto.'));
+  if(dlg.showModal){if(!dlg.open)dlg.showModal()}else dlg.setAttribute('open','');
+  sheet.scrollTop=0;try{history.replaceState(null,'','#'+it.id)}catch(e){}}
+function closeSheet(){if(dlg.close&&dlg.open)dlg.close();else dlg.removeAttribute('open')}
+dlg.addEventListener('close',function(){try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}if(lastFocus&&lastFocus.focus)lastFocus.focus({preventScroll:true})});
+dlg.addEventListener('click',function(e){if(e.target===dlg)closeSheet()});
+
+/* Enlaces directos: #ASIN o #marca-nombre */
+function fromHash(){var hsh=decodeURIComponent(location.hash.slice(1));if(!hsh)return;var k=hsh.toLowerCase();
+  var it=items.filter(function(x){return x.id===k||x.asin.toLowerCase()===k})[0];if(!it)return;
+  state.cat='';state.q='';q.value='';render();var node=it===first?h:it.node;node.scrollIntoView({block:'center'});
+  node.classList.add('flash');openSheet(it)}
+window.addEventListener('hashchange',fromHash);fromHash();
+})();
+</script>
+</body></html>
