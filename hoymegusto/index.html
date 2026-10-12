@@ -153,7 +153,6 @@ footer{color:var(--soft);font-size:.78rem;border-top:1px solid var(--line);margi
 <li class="card" data-img="/hoymegusto/img/B00KLXFUW4.webp"><p class="eye">Maybelline New York</p><h2>Instant Anti-Age Borrador · Corrector de ojeras, tono 01</h2><div class="bien"><b>Lo que gusta</b>Cubre muy bien las ojeras, es fácil de usar y merece muchísimo la pena por lo que cuesta.</div><a class="cta" href="https://www.amazon.es/dp/B00KLXFUW4">Ver el producto</a></li></ul></section>
 </div>
 <footer><p>Los vídeos se graban con un avatar de IA. La voz y el criterio son de verdad.</p>
-<p>Los precios cambian a diario: los de aquí son orientativos, manda el de la ficha del producto.</p>
 <p>Estos enlaces no son de afiliado y no me llevo comisión. Cuando eso cambie, lo pondré aquí en grande.</p>
 <p><a href="/privacidad/">Privacidad</a> · <a href="/condiciones/">Condiciones</a> · <a href="/">maestre76.com</a></p><p><a href="/hoymegusto/panel/">Panel ejecutivo</a></p></footer>
 </div>
@@ -258,7 +257,6 @@ function openSheet(it){lastFocus=document.activeElement;sheet.innerHTML='';sheet
   sheet.appendChild(tile(it,1));sheet.appendChild(el('p','eyebrow brand',it.brand));sheet.appendChild(el('h2',null,it.name));if(it.q)sheet.appendChild(el('p','q',it.q));
   if(it.type)sheet.appendChild(el('p','facts',it.type));sheet.appendChild(facts(it,1));
   if(it.likes)sheet.appendChild(likesBox(it));sheet.appendChild(cta(it));
-  sheet.appendChild(el('p','note','Precio orientativo: manda el de la ficha del producto.'));
   if(dlg.showModal){if(!dlg.open)dlg.showModal()}else dlg.setAttribute('open','');
   sheet.scrollTop=0;try{history.replaceState(null,'','#'+it.id)}catch(e){}}
 function closeSheet(){if(dlg.close&&dlg.open)dlg.close();else dlg.removeAttribute('open')}
